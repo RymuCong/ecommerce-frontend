@@ -1,6 +1,6 @@
 import { makeStyles } from "@material-ui/core/styles";
 
-export const useStyles = makeStyles({
+export const useStyles = makeStyles((theme) => ({
   heading: {
     fontWeight: "bold",
     margin: "30px 0",
@@ -36,4 +36,16 @@ export const useStyles = makeStyles({
       width: "600px",
     },
   },
-});
+  filterRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  sortControls: {
+    display: 'flex',
+    gap: theme.spacing(2),
+  },
+  formControl: {
+    minWidth: 120,
+  },
+}));

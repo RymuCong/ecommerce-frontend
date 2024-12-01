@@ -1,39 +1,88 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Products } from "../../../components/Products/";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllProducts } from "../../../redux/slices/product";
-import { Container, Typography, Box } from "@material-ui/core";
+import { Container, Typography, Box, TablePagination, Select, MenuItem, FormControl, InputLabel } from "@material-ui/core";
 import { useStyles } from "./style";
-import { Filter } from "../../../components/Filter/";
-import { filterProducts } from "../../../utils";
 import { Loader } from "../../../components/Loader/";
 
 export const Shop = () => {
   const dispatch = useDispatch();
   const classes = useStyles();
   const products = useSelector((state) => state.products.products);
+  const total = useSelector((state) => state.products.total);
   const filter = useSelector((state) => state.products.filter);
   const loading = useSelector((state) => state.products.loading);
 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(12);
+  const [sortBy, setSortBy] = useState("productName");
+  const [sortDir, setSortDir] = useState("asc");
+
   useEffect(() => {
-    dispatch(fetchAllProducts());
-  }, []);
+    dispatch(fetchAllProducts({ pageNumber: page, pageSize: rowsPerPage, sortBy, sortDir }));
+  }, [page, rowsPerPage, sortBy, sortDir]);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleSortByChange = (event) => {
+    setSortBy(event.target.value);
+  };
+
+  const handleSortDirChange = (event) => {
+    setSortDir(event.target.value);
+  };
+
+  // const filteredProducts = filterProducts(products, filter);
 
   return (
-    <Container maxWidth="lg">
-      {loading ? (
-        <Loader />
-      ) : (
-        <>
-          <Typography variant="h3" className={classes.heading}>
-            Our Products
-          </Typography>
-          <Box marginBottom={5}>
-            <Filter />
-          </Box>
-          <Products products={filterProducts(products, filter)} />
-        </>
-      )}
-    </Container>
+      <Container maxWidth="lg">
+        {loading ? (
+            <Loader />
+        ) : (
+            <>
+              <Typography variant="h3" className={classes.heading}>
+                Our Products
+              </Typography>
+              <Box marginBottom={5} className={classes.filterRow}>
+                {/*<Filter />*/}
+                {/*<Box marginTop={5} className={classes.sortControls}>*/}
+                  <FormControl className={classes.formControl} style={{ marginRight: '20px' }}>
+                    <InputLabel>Sort By</InputLabel>
+                    <Select value={sortBy} onChange={handleSortByChange}>
+                      <MenuItem value="productName">Product Name</MenuItem>
+                      <MenuItem value="price">Price</MenuItem>
+                      <MenuItem value="createdAt">Date</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <FormControl className={classes.formControl}>
+                    <InputLabel>Direction</InputLabel>
+                    <Select value={sortDir} onChange={handleSortDirChange}>
+                      <MenuItem value="asc">Ascending</MenuItem>
+                      <MenuItem value="desc">Descending</MenuItem>
+                    </Select>
+                  </FormControl>
+                {/*</Box>*/}
+              </Box>
+              <Products products={products} />
+              <TablePagination
+                  rowsPerPageOptions={[12, 24, 48]}
+                  component="div"
+                  count={total}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </>
+        )}
+      </Container>
   );
 };

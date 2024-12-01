@@ -4,7 +4,7 @@ import { Hero } from "../../../components/Hero/";
 import { Products } from "../../../components/Products/";
 import { useStyles } from "./style";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllProducts } from "../../../redux/slices/product";
+import { fetchLatestProducts } from "../../../redux/slices/product";
 import { Search } from "../../../components/Search/";
 import { Filter } from "../../../components/Filter/";
 import { filterProducts } from "../../../utils";
@@ -18,7 +18,8 @@ export const Home = () => {
   const loading = useSelector((state) => state.products.loading);
 
   useEffect(() => {
-    dispatch(fetchAllProducts());
+    dispatch(fetchLatestProducts());
+    console.log(products)
   }, []);
 
   return (
@@ -37,14 +38,14 @@ export const Home = () => {
         <Search className={classes.input} />
       </Hidden>
 
-      <Box marginBottom={5}>
-        <Filter />
-      </Box>
+      {/*<Box marginBottom={5}>*/}
+      {/*  <Filter />*/}
+      {/*</Box>*/}
 
       {loading ? (
         <Loader />
       ) : (
-        <Products products={filterProducts(products, filter)} />
+        <Products products={products} />
       )}
     </Container>
   );

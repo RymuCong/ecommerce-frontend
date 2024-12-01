@@ -58,14 +58,14 @@ export const Header = () => {
       keepMounted
       onClose={closeDropdownHandler}
     >
-      {categories.map(({ _id, name }) => (
+      {categories.map(({ categoryId, categoryName }) => (
         <MenuItem
           component={NavLink}
-          to={`/category/${_id}`}
+          to={`/category/${categoryId}`}
           onClick={closeDropdownHandler}
-          key={_id}
+          key={categoryId}
         >
-          {name}
+          {categoryName}
         </MenuItem>
       ))}
     </Menu>

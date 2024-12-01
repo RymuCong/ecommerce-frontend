@@ -10,7 +10,7 @@ const fetchCategories = createAsyncThunk(
   "categories/fetchCategories",
   async () => {
     const res = await Axios.get(Api.GET_CATEGORIES);
-    return res.data.content;
+    return res.data.categories;
   }
 );
 

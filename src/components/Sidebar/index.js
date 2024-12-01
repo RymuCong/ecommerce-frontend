@@ -43,17 +43,17 @@ export const Sidebar = (props) => {
       keepMounted
       onClose={closeDropDown}
     >
-      {categories.map(({ _id, name }) => (
+      {categories.map(({ categoryId, categoryName }) => (
         <MenuItem
           component={NavLink}
-          to={`/category/${_id}`}
+          to={`/category/${categoryId}`}
           onClick={() => {
             closeDropDown()
             props.onClose()
           }}
-          key={_id}
+          key={categoryId}
         >
-          {name}
+          {categoryName}
         </MenuItem>
       ))}
     </Menu>

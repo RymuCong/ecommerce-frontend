@@ -31,39 +31,37 @@ const isLogin = createAsyncThunk("admin/isLogin", async () => {
   return res.data;
 });
 
-const fetchProducts = createAsyncThunk("admin/fetchProducts", async () => {
-  const res = await AdminAxios.get(Api.ADMIN_PRODUCTS);
-  console.log(res.data.content);
-  return res.data.content;
+const fetchProducts = createAsyncThunk("admin/fetchProducts", async ({ pageNumber, pageSize, sortBy, sortDir }) => {
+  const res = await Axios.get(Api.GET_PRODUCTS, {
+    params: { pageNumber, pageSize, sortBy, sortDir },
+  });
+  return { products: res.data.products, total: res.data.totalElements };
 });
 
 const createProduct = createAsyncThunk(
-  "admin/createProduct",
-  async ({ name, description, file, status, category, price, quantity }) => {
-    try {
-      if (!file) throw new Error("Upload image!");
-      const data = new FormData();
-      data.append("file", file);
-      data.append("upload_preset", "Ecommerce Images");
-      const res = await Axios.post(
-        "https://api.cloudinary.com/v1_1/dw3ap99ie/image/upload",
-        data
-      );
-      await AdminAxios.post(Api.CREATE_PRODUCT, {
-        name,
-        description,
-        status,
-        category,
-        price,
-        quantity,
-        image: res.data.secure_url,
-      });
-      history.push("/admin/products");
-      return "Product created!";
-    } catch (error) {
-      throw error?.response?.data || error.message;
+    "admin/createProduct",
+    async ({ name, description, file, category, price, quantity, discount }) => {
+      try {
+        const productName = name;
+        const data = new FormData();
+        data.append("categoryId", category);
+        console.log({ productName, description, price, quantity, discount, category });
+        data.append("product", new Blob([JSON.stringify({ productName, description, price, quantity, discount })], { type: "application/json" }));
+        if (file) {
+          data.append("image", file);
+        }
+        const res = await AdminAxios.post(Api.CREATE_PRODUCT, data, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        history.push("/admin/products");
+        NotificationManager.success("Product created!");
+        return res.data;
+      } catch (error) {
+        throw error?.response?.data || error.message;
+      }
     }
-  }
 );
 
 const editProduct = createAsyncThunk(
@@ -181,11 +179,17 @@ const initialState = {
   contentLoading: false,
   categories: [],
   orders: [],
+  total : 0,
 };
 
 const adminSlice = createSlice({
   name: "admin",
-  initialState,
+  initialState: {
+    products: [],
+    total: 0,
+    loading: false,
+  },
+  reducers : {},
   extraReducers: (builder) => {
     builder
       .addCase(login.pending, (state, action) => {
@@ -216,13 +220,15 @@ const adminSlice = createSlice({
         state.contentLoading = true;
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
-        state.products = action.payload;
+        state.products = action.payload.products;
+        state.total = action.payload.total;
         state.contentLoading = false;
       })
       .addCase(createProduct.pending, (state, action) => {
         state.authLoading = true;
       })
       .addCase(createProduct.fulfilled, (state, action) => {
+        state.products.push(action.payload);
         state.authLoading = false;
         NotificationManager.success("Product created!");
       })

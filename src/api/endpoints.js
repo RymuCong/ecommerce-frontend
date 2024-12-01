@@ -1,8 +1,8 @@
 // Admin routes
 export const ADMIN_LOGIN = "/auth/admin/login";
 export const IS_ADMIN_LOGIN = "/auth/admin/is-login";
-export const ADMIN_PRODUCTS = "/public/admin/product";
-export const ADMIN_PRODUCT = (id) => `/admin/product/${id}`;
+export const ADMIN_PRODUCTS = "/public/product";
+export const ADMIN_PRODUCT = (id) => `/public/product/${id}`;
 export const ADMIN_ORDERS = "/admin/order";
 export const ADMIN_ORDER = (id) => `/admin/order/${id}`;
 
@@ -14,12 +14,13 @@ export const UPDATE_USER = "/user";
 export const GET_USER = "/user";
 
 // Product routes
-export const CREATE_PRODUCT = "/product";
-export const UPDATE_PRODUCT = (id) => `/product/${id}`;
+export const CREATE_PRODUCT = "/public/product/add";
+export const LATEST_PRODUCTS = "/public/latest-products";
+export const UPDATE_PRODUCT = (id) => `/admin/product/${id}`;
 export const DELETE_PRODUCT = (id) => `/product/${id}`;
 export const GET_PRODUCT = (id) => `/product/${id}`;
 export const GET_PRODUCTS = "/public/product";
-export const GET_CATEGORY_PRODUCTS = (id) => `/product/category/${id}`;
+export const GET_CATEGORY_PRODUCTS = (id) => `/public/product/category/${id}`;
 export const CREATE_REVIEW = (id) => `/product/${id}/review`;
 
 // Category routes

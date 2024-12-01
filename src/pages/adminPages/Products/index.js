@@ -10,14 +10,13 @@ import {
   TableRow,
   TableCell,
   Paper,
-  IconButton, TablePagination,
+  TablePagination,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem, Box,
 } from "@material-ui/core";
-import {
-  EditOutlined,
-  DeleteOutlineOutlined,
-  Add,
-  KeyboardArrowDown,
-} from "@material-ui/icons";
+import { Add } from "@material-ui/icons";
 import { useStyles } from "./style";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../../../redux/slices/admin";
@@ -31,14 +30,17 @@ export const Products = withAdminAuth(true)((props) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const products = useSelector((state) => state.admin.products);
-  const loading = useSelector((state) => state.admin.contentLoading);
+  const total = useSelector((state) => state.admin.total);
+  const loading = useSelector((state) => state.admin.loading);
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [sortBy, setSortBy] = useState("productName");
+  const [sortDir, setSortDir] = useState("asc");
 
   useEffect(() => {
-    dispatch(fetchProducts());
-  }, []);
+    dispatch(fetchProducts({ pageNumber: page, pageSize: rowsPerPage, sortBy, sortDir }));
+  }, [page, rowsPerPage, sortBy, sortDir]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -49,61 +51,87 @@ export const Products = withAdminAuth(true)((props) => {
     setPage(0);
   };
 
+  const handleSortByChange = (event) => {
+    setSortBy(event.target.value);
+  };
+
+  const handleSortDirChange = (event) => {
+    setSortDir(event.target.value);
+  };
+
   return (
-    <Container maxWidth="lg">
-      {loading ? (
-        <Loader />
-      ) : (
-        <>
-          <Typography variant="h3" className={classes.heading}>
-            Products
-          </Typography>
-          <Button
-            variant="outlined"
-            color="primary"
-            style={{ marginLeft: "auto", display: "flex" }}
-            size="large"
-            startIcon={<Add />}
-            onClick={() => push("/admin/create-product")}
-          >
-            Create
-          </Button>
+      <Container maxWidth="lg">
+        {loading ? (
+            <Loader />
+        ) : (
+            <>
+              <Typography variant="h3" className={classes.heading}>
+                Products
+              </Typography>
+              <Button
+                  variant="outlined"
+                  color="primary"
+                  style={{ marginLeft: "auto", display: "flex" }}
+                  size="large"
+                  startIcon={<Add />}
+                  onClick={() => push("/admin/create-product")}
+              >
+                Create
+              </Button>
 
-          <TableContainer component={Paper} className={classes.tableContainer}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell></TableCell>
-                  <TableCell>Image</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Price</TableCell>
-                  <TableCell>Quantity</TableCell>
-                  <TableCell>Sold</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              </TableHead>
+              <Box marginBottom={5} className={classes.filterRow}>
+                <Box marginTop={5} className={classes.sortControls}>
+                  <FormControl className={classes.formControl} style={{ marginRight: '20px' }}>
+                    <InputLabel>Sort By</InputLabel>
+                    <Select value={sortBy} onChange={handleSortByChange}>
+                      <MenuItem value="productName">Product Name</MenuItem>
+                      <MenuItem value="price">Price</MenuItem>
+                      <MenuItem value="createdAt">Date</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <FormControl className={classes.formControl}>
+                    <InputLabel>Direction</InputLabel>
+                    <Select value={sortDir} onChange={handleSortDirChange}>
+                      <MenuItem value="asc">Ascending</MenuItem>
+                      <MenuItem value="desc">Descending</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+              </Box>
 
-              <TableBody>
-                {products
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((product) => (
+              <TableContainer component={Paper} className={classes.tableContainer}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell></TableCell>
+                      <TableCell>Image</TableCell>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Price</TableCell>
+                      <TableCell>Quantity</TableCell>
+                      <TableCell>Special Price</TableCell>
+                      <TableCell>Category</TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                  </TableHead>
+
+                  <TableBody>
+                    {products.map((product) => (
                         <Row key={product.productId} product={product} />
                     ))}
-              </TableBody>
-            </Table>
-            <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={products.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </TableContainer>
-        </>
-      )}
-    </Container>
+                  </TableBody>
+                </Table>
+                <TablePagination
+                    rowsPerPageOptions={[5, 10, 25]}
+                    component="div"
+                    count={total}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+              </TableContainer>
+            </>
+        )}
+      </Container>
   );
 });

@@ -31,12 +31,12 @@ export const Row = ({ product }) => {
   const { push } = useHistory();
   const dispatch = useDispatch();
   const loading = useSelector((state) => state.admin.authLoading);
-  const [openReviews, setOpenReviews] = useState(false);
+  // const [openReviews, setOpenReviews] = useState(false);
   const classes = useStyles();
   const [open, setOpen] = useState(false);
 
-  const handleClose = () => setOpenReviews(false);
-  const handleOpen = () => setOpenReviews(true);
+  // const handleClose = () => setOpenReviews(false);
+  // const handleOpen = () => setOpenReviews(true);
 
   const deleteProductHandler = () => {
     dispatch(deleteProduct(product.productId));
@@ -56,10 +56,10 @@ export const Row = ({ product }) => {
           </div>
         </TableCell>
         <TableCell>{product.productName}</TableCell>
-        <TableCell>${product.price}</TableCell>
+        <TableCell>{product.price}đ</TableCell>
         <TableCell>{product.quantity}</TableCell>
-        <TableCell>{product.discount}</TableCell>
-        <TableCell>{product.specialPrice}</TableCell>
+        <TableCell>{product.specialPrice}đ</TableCell>
+        <TableCell>{product?.category?.categoryName}</TableCell>
         <TableCell>
           {loading ? (
             <CircularProgress size={20} color="primary" />
@@ -101,7 +101,7 @@ export const Row = ({ product }) => {
                     <TableCell>Category</TableCell>
                     <TableCell>Created</TableCell>
                     <TableCell>Updated</TableCell>
-                    <TableCell>Reviews</TableCell>
+                    <TableCell>Discount</TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
@@ -115,15 +115,16 @@ export const Row = ({ product }) => {
                   </TableCell>
                   {/*<TableCell>{product?.reviews.length}</TableCell>{product?.rating?.toFixed(1) || "No rating"}*/}
                   <TableCell>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="small"
-                      style={{ color: "white" }}
-                      onClick={handleOpen}
-                    >
-                      View Reviews
-                    </Button>
+                    {product.discount ? `${product.discount}%` : "No discount"}
+                    {/*<Button*/}
+                    {/*  variant="contained"*/}
+                    {/*  color="primary"*/}
+                    {/*  size="small"*/}
+                    {/*  style={{ color: "white" }}*/}
+                    {/*  onClick={handleOpen}*/}
+                    {/*>*/}
+                    {/*  View Reviews*/}
+                    {/*</Button>*/}
                   </TableCell>
                 </TableBody>
               </Table>

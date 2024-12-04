@@ -83,7 +83,7 @@ const Checkout = withUserAuth(true)((props) => {
         setProcessing(false);
         return NotificationManager.error(payload.error.message);
       }
-      const res = await UserAxios.post(Api.CREATE_ORDER, {
+      const res = await UserAxios.post(Api.CREATE_ORDER_STRIPE, {
         country,
         city,
         address1,

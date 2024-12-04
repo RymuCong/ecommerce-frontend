@@ -52,19 +52,19 @@ export const ProductPage = () => {
 
             <Grid item md={6} xs={12}>
               <Typography variant="h3" className={classes.heading}>
-                {product.name}
+                {product.productName}
               </Typography>
 
-              <BigTooltip
-                title={`${product.rating?.toFixed(1) || "No"} Rating`}
-                placement="top-start"
-                arrow
-              >
-                <div className={classes.rating}>
-                  <Rating precision="0.1" value={product.rating} readOnly />
-                  <Typography>({product.reviews.length} Reviews)</Typography>
-                </div>
-              </BigTooltip>
+              {/*<BigTooltip*/}
+              {/*  title={`${product.rating?.toFixed(1) || "No"} Rating`}*/}
+              {/*  placement="top-start"*/}
+              {/*  arrow*/}
+              {/*>*/}
+              {/*  <div className={classes.rating}>*/}
+              {/*    <Rating precision="0.1" value={product.rating} readOnly />*/}
+              {/*    <Typography>({product.reviews.length} Reviews)</Typography>*/}
+              {/*  </div>*/}
+              {/*</BigTooltip>*/}
 
               <Typography
                 variant="h5"
@@ -84,7 +84,7 @@ export const ProductPage = () => {
                   variant="outlined"
                   color="primary"
                   disabled={!product.quantity || cartLoading}
-                  onClick={() => dispatch(addToCart(product._id))}
+                  onClick={() => dispatch(addToCart(product.productId))}
                   endIcon={
                     cartLoading ? (
                       <CircularProgress size={20} color="primary" />
@@ -109,30 +109,30 @@ export const ProductPage = () => {
               <TableBody>
                 <TableRow>
                   <TableCell component="th">Category</TableCell>
-                  <TableCell>{product.category.name}</TableCell>
+                  <TableCell>{product.category.categoryName}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell component="th">Created</TableCell>
-                  <TableCell>{moment(product.created).fromNow()}</TableCell>
+                  <TableCell>{moment(product.createdAt).fromNow()}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell component="th">Quantity in stock</TableCell>
                   <TableCell>{product.quantity}</TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell component="th">Sold</TableCell>
-                  <TableCell>{product.sold}</TableCell>
+                  <TableCell component="th">Discount</TableCell>
+                  <TableCell>{product.discount || 0 }%</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
 
-          <Typography variant="h5">
-            Reviews ({product.reviews.length})
-          </Typography>
-          {product.reviews.map((review) => (
-            <Review key={review._id} review={review} />
-          ))}
+          {/*<Typography variant="h5">*/}
+          {/*  Reviews ({product.reviews.length})*/}
+          {/*</Typography>*/}
+          {/*{product.reviews.map((review) => (*/}
+          {/*  <Review key={review._id} review={review} />*/}
+          {/*))}*/}
         </>
       )}
     </Container>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState, memo} from "react";
 import {
   Button,
   Container,
@@ -35,12 +35,12 @@ export const Products = withAdminAuth(true)((props) => {
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [sortBy, setSortBy] = useState("productName");
-  const [sortDir, setSortDir] = useState("asc");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortDir, setSortDir] = useState("desc");
 
   useEffect(() => {
     dispatch(fetchProducts({ pageNumber: page, pageSize: rowsPerPage, sortBy, sortDir }));
-  }, [page, rowsPerPage, sortBy, sortDir]);
+  }, [page, rowsPerPage, sortBy, sortDir, dispatch]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -116,7 +116,7 @@ export const Products = withAdminAuth(true)((props) => {
 
                   <TableBody>
                     {products.map((product) => (
-                        <Row key={product.productId} product={product} />
+                        <MemoizedRow key={product.productId} product={product} />
                     ))}
                   </TableBody>
                 </Table>
@@ -135,3 +135,5 @@ export const Products = withAdminAuth(true)((props) => {
       </Container>
   );
 });
+
+const MemoizedRow = memo(Row);

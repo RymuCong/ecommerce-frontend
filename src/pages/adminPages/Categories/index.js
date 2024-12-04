@@ -17,7 +17,7 @@ import { Add, EditOutlined, DeleteOutlineOutlined } from "@material-ui/icons";
 import { useStyles } from "./style";
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCategories, deleteCategory } from "../../../redux/slices/admin";
+import { deleteCategory, fetchCategories } from "../../../redux/slices/admin";
 import { withAdminAuth } from "../../../hoc/withAdminAuth";
 import { Loader } from "../../../components/Loader/";
 
@@ -31,7 +31,9 @@ export const Categories = withAdminAuth(true)((props) => {
 
   useEffect(() => {
     dispatch(fetchCategories());
-  }, []);
+  }, [dispatch]);
+
+  console.log(categories);
 
   return (
     <Container maxWidth="lg">
@@ -68,9 +70,9 @@ export const Categories = withAdminAuth(true)((props) => {
                 </TableHead>
 
                 <TableBody>
-                  {categories.map(({ _id, name }) => (
-                    <TableRow key={_id}>
-                      <TableCell>{name}</TableCell>
+                  {categories.map(({ categoryId, categoryName }) => (
+                    <TableRow key={categoryId}>
+                      <TableCell>{categoryName}</TableCell>
                       <TableCell align="right">
                         {deleteLoading ? (
                           <CircularProgress size={20} color="primary" />
@@ -78,7 +80,7 @@ export const Categories = withAdminAuth(true)((props) => {
                           <>
                             <IconButton
                               onClick={() =>
-                                push(`/admin/edit-category/${_id}`)
+                                push(`/admin/edit-category/${categoryId}`)
                               }
                               color="primary"
                               size="small"
@@ -89,7 +91,7 @@ export const Categories = withAdminAuth(true)((props) => {
                             <IconButton
                               color="secondary"
                               size="small"
-                              onClick={() => dispatch(deleteCategory(_id))}
+                              onClick={() => dispatch(deleteCategory(categoryId))}
                             >
                               <DeleteOutlineOutlined />
                             </IconButton>

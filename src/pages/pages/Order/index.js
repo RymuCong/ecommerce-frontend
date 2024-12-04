@@ -26,14 +26,14 @@ import { Loader } from "../../../components/Loader/";
 
 const showStatus = (status) => {
   switch (status) {
-    case "ORDERED":
-      return "PACKED";
-    case "PACKED":
+    case "PENDING":
       return "SHIPPED";
     case "SHIPPED":
       return "DELIVERED";
+    case "DELIVERED":
+      return "ORDERED";
     default:
-      return "ORDER COMPLETED";
+      return "CANCELLED";
   }
 };
 
@@ -48,7 +48,7 @@ export const Order = ({ admin }) => {
     admin ? state.admin.order : state.orders.order
   );
   const { id } = useParams();
-  const items = order?.items?.reduce((total, item) => item.quantity + total, 0);
+  const items = order?.orderItems?.reduce((total, item) => item.quantity + total, 0);
   const buttonLoading = useSelector((state) => state.admin.authLoading);
   const deleteLoading = useSelector((state) => state.orders.buttonLoading);
   const adminExist = localStorage.getItem("adminToken");
@@ -67,6 +67,8 @@ export const Order = ({ admin }) => {
     dispatch(admin ? fetchAdminOrder(id) : fetchOrder(id));
   }, [id, history.location.pathname]);
 
+  console.log(order);
+
   return (
     <Container maxWidth="lg">
       {contentLoading ? (
@@ -81,10 +83,10 @@ export const Order = ({ admin }) => {
             <Grid item md={6} xs={12}>
               <Paper className={classes.paper}>
                 <Typography>
-                  <span>Order ID</span> <Chip label={order?._id} size="small" />
+                  <span>Order ID</span> <Chip label={order?.orderId} size="small" />
                 </Typography>
                 <Typography>
-                  <span>Products</span> {order?.items.length}
+                  <span>Products</span> {order?.orderItems.length}
                 </Typography>
                 <Typography>
                   <span>Items</span> {items}
@@ -93,12 +95,12 @@ export const Order = ({ admin }) => {
                   <span>Date</span> {moment(order?.date).fromNow()}
                 </Typography>
                 <Typography>
-                  <span>Price</span> ${order?.price}
+                  <span>Price</span> ${order?.totalAmount}
                 </Typography>
                 <Typography>
                   <span>Status</span>{" "}
                   <Chip
-                    label={order?.status}
+                    label={order?.orderStatus}
                     size="small"
                     style={{ color: "white", fontWeight: "bold" }}
                     color="primary"
@@ -106,20 +108,20 @@ export const Order = ({ admin }) => {
                 </Typography>
                 {admin ? (
                   <>
-                    {order?.status === "DELIVERED" ? null : (
+                    {order?.orderStatus === "DELIVERED" ? null : (
                       <Typography>
                         <span>Change Status:</span>
                       </Typography>
                     )}
                     <Button
-                      disabled={order?.status === "DELIVERED" || buttonLoading}
+                      disabled={order?.orderStatus === "ORDERED" || buttonLoading}
                       variant="outlined"
                       color="primary"
                       onClick={() =>
                         dispatch(
                           editAdminOrder({
                             id,
-                            status: showStatus(order?.status),
+                            status: showStatus(order?.orderStatus),
                           })
                         )
                       }
@@ -127,7 +129,7 @@ export const Order = ({ admin }) => {
                         buttonLoading ? <CircularProgress size={20} /> : null
                       }
                     >
-                      {showStatus(order?.status)}
+                      {showStatus(order?.orderStatus)}
                     </Button>
                   </>
                 ) : null}
@@ -150,29 +152,29 @@ export const Order = ({ admin }) => {
           </Typography>
 
           <Grid container spacing={5}>
-            {order?.items?.map((item) => {
+            {order?.orderItems?.map((item) => {
               let isAddReview = false;
               const reviewExist = item.product.reviews?.find(
-                (review) => review.order == order._id
+                (review) => review.order === order.orderItemId
               );
 
-              if (order.status === "DELIVERED" && !reviewExist && !admin) {
+              if (order.orderStatus === "DELIVERED" && !reviewExist && !admin) {
                 isAddReview = true;
               }
 
               return (
-                <Grid key={item._id} item xs={12} sm={6} lg={4}>
+                <Grid key={item.orderItemId} item xs={12} sm={6} lg={4}>
                   <Card className={classes.product}>
                     <CardActionArea
                       onClick={() =>
-                        history.push(`/product/${item.product._id}`)
+                        history.push(`/product/${item.product.productId}`)
                       }
                     >
                       <CardMedia
                         style={{ height: "250px", backgroundSize: "contain" }}
                         className={classes.media}
                         image={item.product.image}
-                        title={item.product.name}
+                        title={item.product.productName}
                       />
                     </CardActionArea>
 
@@ -181,9 +183,9 @@ export const Order = ({ admin }) => {
                         className={classes.productName}
                         variant="h5"
                         component={Link}
-                        to={`/product/${item.product._id}`}
+                        to={`/product/${item.product.productId}`}
                       >
-                        {item.product.name}
+                        {item.product.productName}
                       </Typography>
                       <Typography>
                         <span>Quantity</span> {item.quantity}
@@ -225,7 +227,7 @@ export const Order = ({ admin }) => {
             })}
           </Grid>
 
-          {!admin && order?.status === "DELIVERED" ? (
+          {!admin && order?.orderStatus === "DELIVERED" ? (
             <Box marginTop={4}>
               <Button
                 variant="contained"

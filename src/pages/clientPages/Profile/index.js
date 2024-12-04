@@ -13,13 +13,13 @@ import {
 import {} from "@material-ui/icons";
 import { useStyles } from "./style";
 import { useHistory } from "react-router-dom";
-import { useSelector } from "react-redux";
+import {useSelector} from "react-redux";
 import { withUserAuth } from "../../../hoc/withUserAuth";
 
 export const Profile = withUserAuth(true)((props) => {
   const classes = useStyles();
   const { push } = useHistory();
-  const user = useSelector((state) => state.users.user);
+  const profile = useSelector((state) => state.users.user);
 
   return (
     <Container maxWidth="lg">
@@ -31,12 +31,16 @@ export const Profile = withUserAuth(true)((props) => {
         <Table>
           <TableBody>
             <TableRow>
-              <TableCell component="th">Name</TableCell>
-              <TableCell>{user?.name}</TableCell>
+              <TableCell component="th">Last Name</TableCell>
+              <TableCell>{profile?.lastName}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell component="th">First Name</TableCell>
+              <TableCell>{profile?.firstName}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell component="th">Email</TableCell>
-              <TableCell>{user?.email}</TableCell>
+              <TableCell>{profile?.email}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell>

@@ -45,8 +45,12 @@ const isLogin = createAsyncThunk("users/isLogin", async () => {
   const token = localStorage.getItem("userToken");
   if (!token) throw "ERROR!";
 
-  const res = await UserAxios.get(Api.IS_USER_LOGIN);
-  return res.data.user;
+  const res = await UserAxios.get(Api.IS_USER_LOGIN, {
+    headers: {
+      Authorization: token,
+    },
+  });
+  return res.data;
 });
 
 const editUser = createAsyncThunk(
@@ -68,33 +72,71 @@ const editUser = createAsyncThunk(
 
 const addToCart = createAsyncThunk("users/addToCart", async (id) => {
   try {
-    const res = await UserAxios.post(Api.ADD_TO_CART(id));
-    return res.data.user;
+    const res = await UserAxios.post(Api.ADD_TO_CART(id), {
+      Authorization: localStorage.getItem("userToken"),
+    });
+    return res.data;
   } catch (error) {
     throw error?.response?.data || error.message;
   }
 });
 
-const decrementFromCart = createAsyncThunk(
-  "users/decrementFromCart",
-  async (id) => {
+const getCart = createAsyncThunk("users/getCart", async () => {
     try {
-      const res = await UserAxios.delete(Api.DECREMENT_FROM_CART(id));
-      return res.data.user;
+        const res = await UserAxios.get(Api.GET_CART, {
+            Authorization: localStorage.getItem("userToken"),
+        });
+        return res.data;
     } catch (error) {
-      throw error?.response?.data || error.message;
+        throw error?.response?.data || error.message;
     }
-  }
+});
+
+const updateProductFromCart = createAsyncThunk(
+    "users/updateProductFromCart",
+    async ({ id, quantity }) => {
+      try {
+        const res = await UserAxios.patch(Api.UPDATE_CART_PRODUCT(id, quantity), {
+          headers: {
+            Authorization: localStorage.getItem("userToken"),
+          },
+        });
+        return res.data;
+      } catch (error) {
+        throw error?.response?.data || error.message;
+      }
+    }
 );
 
 const deleteFromCart = createAsyncThunk("users/deleteFromCart", async (id) => {
   try {
-    const res = await UserAxios.delete(Api.DELETE_FROM_CART(id));
-    return res.data.user;
+    const res = await UserAxios.delete(Api.DELETE_FROM_CART(id), {
+        headers: {
+            Authorization: localStorage.getItem("userToken"),
+        },
+    });
+    return res.data;
   } catch (error) {
     throw error?.response?.data || error.message;
   }
 });
+
+const createOrder = createAsyncThunk("users/createOrder", async (data) => {
+    try {
+        const res = await UserAxios.post(Api.CREATE_ORDER, data ,{
+        headers: {
+            Authorization: localStorage.getItem("userToken"),
+        },
+        });
+        console.log(res.data);
+        NotificationManager.success("Order placed!");
+        history.push("/"); // Navigate to the home page
+        return res.data;
+    } catch (error) {
+        throw error?.response?.data || error.message;
+    }
+});
+
 
 const usersSlice = createSlice({
   name: "users",
@@ -106,9 +148,9 @@ const usersSlice = createSlice({
       NotificationManager.success("Logged out!");
     },
     emptyCart(state, action) {
-      state.user.cart = {
-        items: [],
-        price: 0,
+      state.cart = {
+        cartItems: [],
+        totalPrice: 0,
       };
     },
   },
@@ -131,7 +173,7 @@ const usersSlice = createSlice({
         state.authLoading = true;
       })
       .addCase(login.fulfilled, (state, action) => {
-        state.user = action.payload.user;
+        state.user = action.payload;
         localStorage.setItem("userToken", `Bearer ${action.payload.token}`);
         state.authLoading = false;
         NotificationManager.success("Logged in!");
@@ -180,14 +222,21 @@ const usersSlice = createSlice({
           NotificationManager.error(action.error.message);
         }
       })
-      .addCase(decrementFromCart.pending, (state, action) => {
+        .addCase(getCart.pending, (state, action) => {
+            state.cartLoading = true;
+        })
+        .addCase(getCart.fulfilled, (state, action) => {
+            state.cart = action.payload;
+            state.cartLoading = false;
+        })
+      .addCase(updateProductFromCart.pending, (state, action) => {
         state.cartLoading = true;
       })
-      .addCase(decrementFromCart.fulfilled, (state, action) => {
-        state.user = action.payload;
+      .addCase(updateProductFromCart.fulfilled, (state, action) => {
+        state.cart = action.payload;
         state.cartLoading = false;
       })
-      .addCase(decrementFromCart.rejected, (state, action) => {
+      .addCase(updateProductFromCart.rejected, (state, action) => {
         state.cartLoading = false;
         NotificationManager.error(action.error.message);
       })
@@ -195,14 +244,24 @@ const usersSlice = createSlice({
         state.cartLoading = true;
       })
       .addCase(deleteFromCart.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.cart = action.payload;
         state.cartLoading = false;
         NotificationManager.success("Item removed!");
       })
       .addCase(deleteFromCart.rejected, (state, action) => {
         state.cartLoading = false;
         NotificationManager.error(action.error.message);
-      });
+      })
+      .addCase(createOrder.pending, (state, action) => {
+        state.loading = true;
+      })
+        .addCase(createOrder.fulfilled, (state, action) => {
+            state.loading = false;
+        })
+        .addCase(createOrder.rejected, (state, action) => {
+            state.loading = false;
+            NotificationManager.error(action.error.message);
+        });
   },
 });
 
@@ -212,8 +271,10 @@ export {
   isLogin,
   editUser,
   addToCart,
-  decrementFromCart,
+    getCart,
+  updateProductFromCart,
   deleteFromCart,
+    createOrder,
 };
 
 export const { userLogout, emptyCart } = usersSlice.actions;

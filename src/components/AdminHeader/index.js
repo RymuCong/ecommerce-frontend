@@ -8,13 +8,16 @@ import {
   Menu,
   MenuItem
 } from "@material-ui/core"
-import { MenuRounded } from "@material-ui/icons"
+import {ExitToAppOutlined, MenuRounded} from "@material-ui/icons"
 import { useStyles } from "./style"
 import { Link, NavLink } from "react-router-dom"
+import {adminLogout} from "../../redux/slices/admin";
+import {useDispatch} from "react-redux";
 
 export const AdminHeader = (props) => {
   const classes = useStyles()
   const [anchorEl, setAnchorEl] = useState(null)
+  const dispatch = useDispatch()
 
   const closeDropdownHandler = () => setAnchorEl(null)
   const openDropdownHandler = (e) => setAnchorEl(e.currentTarget)
@@ -105,6 +108,12 @@ export const AdminHeader = (props) => {
             to="/admin/orders"
           >
             Orders
+          </Typography>
+          <Typography
+              className={classes.navItems}
+              onClick={() => dispatch(adminLogout())}
+          >
+            <ExitToAppOutlined /> Logout
           </Typography>
         </Hidden>
 

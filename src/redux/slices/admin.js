@@ -24,7 +24,6 @@ const login = createAsyncThunk("admin/login", async ({ email, password }) => {
 
 const isLogin = createAsyncThunk("admin/isLogin", async () => {
   const token = localStorage.getItem("adminToken");
-  console.log(token);
   if (!token) throw "ERROR!";
 
   const res = await AdminAxios.get(Api.IS_ADMIN_LOGIN);
@@ -40,23 +39,26 @@ const fetchProducts = createAsyncThunk("admin/fetchProducts", async ({ pageNumbe
 
 const createProduct = createAsyncThunk(
     "admin/createProduct",
-    async ({ name, description, file, category, price, quantity, discount }) => {
+    async ({ name, description, file, category, price, quantity, discount, tags }) => {
       try {
         const productName = name;
+        const formattedTags = tags.map(tagId => ({ tagId }));
         const data = new FormData();
         data.append("categoryId", category);
-        console.log({ productName, description, price, quantity, discount, category });
-        data.append("product", new Blob([JSON.stringify({ productName, description, price, quantity, discount })], { type: "application/json" }));
+        console.log({ productName, description, price, quantity, discount, category, tags: formattedTags });
+        data.append("product", new Blob([JSON.stringify({ productName, description, price, quantity, discount, tags: formattedTags })], { type: "application/json" }));
         if (file) {
           data.append("image", file);
         }
+
+        const token = localStorage.getItem("adminToken");
         const res = await AdminAxios.post(Api.CREATE_PRODUCT, data, {
           headers: {
             "Content-Type": "multipart/form-data",
+            "Authorization": token,
           },
         });
         history.push("/admin/products");
-        NotificationManager.success("Product created!");
         return res.data;
       } catch (error) {
         throw error?.response?.data || error.message;
@@ -65,47 +67,44 @@ const createProduct = createAsyncThunk(
 );
 
 const editProduct = createAsyncThunk(
-  "admin/editProduct",
-  async ({
-    id,
-    name,
-    description,
-    file,
-    status,
-    category,
-    price,
-    quantity,
-  }) => {
-    try {
-      if (!file) throw new Error("Upload image!");
-      const data = new FormData();
-      data.append("file", file);
-      data.append("upload_preset", "Ecommerce Images");
-      const res = await Axios.post(
-        "https://api.cloudinary.com/v1_1/dw3ap99ie/image/upload",
-        data
-      );
+    "admin/editProduct",
+    async ({ id, name, description, file, category, price, quantity, discount, tags }) => {
+      try {
+        const productName = name;
+        const formattedTags = tags.map(tagId => ({ tagId }));
+        const data = new FormData();
+        data.append("categoryId", category);
+        data.append("product", new Blob([JSON.stringify({ productName, description, price, quantity, discount, tags: formattedTags })], { type: "application/json" }));
+        if (file) {
+          data.append("image", file);
+        }
 
-      await AdminAxios.patch(Api.UPDATE_PRODUCT(id), {
-        name,
-        description,
-        status,
-        category,
-        price,
-        quantity,
-        image: res.data.secure_url,
-      });
-      history.push("/admin/products");
-      return "Product updated!";
-    } catch (error) {
-      throw error?.response?.data || error.message;
+        const token = localStorage.getItem("adminToken");
+        const res = await AdminAxios.patch(Api.UPDATE_PRODUCT(id), data, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "Authorization": token,
+          },
+        });
+        history.push("/admin/products");
+        NotificationManager.success("Product updated!");
+        return res.data;
+      } catch (error) {
+        throw error?.response?.data || error.message;
+      }
     }
-  }
 );
 
 const deleteProduct = createAsyncThunk("admin/deleteProduct", async (id) => {
-  const res = await AdminAxios.delete(Api.DELETE_PRODUCT(id));
-  return res.data.product._id;
+  const token = localStorage.getItem("adminToken");
+  const res = await AdminAxios.delete(Api.DELETE_PRODUCT(id),
+  {
+    headers: {
+      "Authorization": token,
+    }
+  });
+  console.log(res.data);
+  return res.data.productId;
 });
 
 const fetchCategories = createAsyncThunk("admin/fetchCategories", async () => {
@@ -115,9 +114,14 @@ const fetchCategories = createAsyncThunk("admin/fetchCategories", async () => {
 
 const createCategory = createAsyncThunk(
   "admin/createCategory",
-  async ({ name }) => {
+  async ({ categoryName }) => {
     try {
-      const res = await AdminAxios.post(Api.CREATE_CATEGORY, { name });
+      const token = localStorage.getItem("adminToken");
+      const res = await AdminAxios.post(Api.CREATE_CATEGORY, { categoryName }, {
+        headers: {
+          "Authorization": token,
+        },
+      });
       history.push("/admin/categories");
       NotificationManager.success("Category created!");
       return res.data.category;
@@ -129,9 +133,13 @@ const createCategory = createAsyncThunk(
 
 const editCategory = createAsyncThunk(
   "admin/editCategory",
-  async ({ id, name }) => {
+  async ({ id, categoryName }) => {
     try {
-      const res = await AdminAxios.patch(Api.UPDATE_CATEGORY(id), { name });
+      const res = await AdminAxios.patch(Api.UPDATE_CATEGORY(id), { categoryName }, {
+        headers: {
+          "Authorization": localStorage.getItem("adminToken"),
+        },
+      });
       history.push("/admin/categories");
       NotificationManager.success("Category updated!");
       return res.data.category;
@@ -142,33 +150,57 @@ const editCategory = createAsyncThunk(
 );
 
 const deleteCategory = createAsyncThunk("admin/deleteCategory", async (id) => {
-  const res = await AdminAxios.delete(Api.DELETE_CATEGORY(id));
-  return res.data.category._id;
+  const res = await AdminAxios.delete(Api.DELETE_CATEGORY(id), {
+    headers: {
+      "Authorization": localStorage.getItem("adminToken"),
+    },
+  });
+  console.log(res.data.categoryId);
+  return res.data.categoryId;
 });
 
 const fetchAdminOrders = createAsyncThunk(
   "admin/fetchAdminOrders",
   async () => {
-    const res = await AdminAxios.get(Api.ADMIN_ORDERS);
-    return res.data.orders;
+    const res = await AdminAxios.get(Api.ADMIN_ORDERS, {
+        headers: {
+            "Authorization": localStorage.getItem("adminToken"),
+        },
+    });
+    console.log(res.data);
+    return res.data.content;
   }
 );
 
 const fetchAdminOrder = createAsyncThunk(
   "admin/fetchAdminOrder",
   async (id) => {
-    const res = await AdminAxios.get(Api.ADMIN_ORDER(id));
-    return res.data.order;
+    const res = await AdminAxios.get(Api.ADMIN_ORDER(id), {
+        headers: {
+            "Authorization": localStorage.getItem("adminToken"),
+        },
+    });
+    console.log(res.data);
+    return res.data;
   }
 );
 
 const editAdminOrder = createAsyncThunk(
-  "admin/editAdminOrder",
-  async ({ id, status }) => {
-    const res = await AdminAxios.patch(Api.UPDATE_ORDER(id), { status });
-    NotificationManager.success("Order's status updated!");
-    return res.data.order;
-  }
+    "admin/editAdminOrder",
+    async ({ id, status }) => {
+      const data = new FormData();
+      data.append("status", status);
+
+      const res = await AdminAxios.patch(Api.UPDATE_ORDER(id), data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "Authorization": localStorage.getItem("adminToken"),
+        },
+      });
+
+      NotificationManager.success("Order's status updated!");
+      return res.data;
+    }
 );
 
 const initialState = {
@@ -184,12 +216,15 @@ const initialState = {
 
 const adminSlice = createSlice({
   name: "admin",
-  initialState: {
-    products: [],
-    total: 0,
-    loading: false,
+  initialState,
+  reducers : {
+    adminLogout: (state) => {
+        state.admin = false;
+        localStorage.removeItem("adminToken");
+        NotificationManager.success("Logged out!");
+        history.push("/admin/login");
+    }
   },
-  reducers : {},
   extraReducers: (builder) => {
     builder
       .addCase(login.pending, (state, action) => {
@@ -254,7 +289,7 @@ const adminSlice = createSlice({
         state.authLoading = false;
         NotificationManager.success("Product deleted!");
         state.products = state.products.filter(
-          ({ _id }) => _id != action.payload
+          ({ productId }) => productId !== action.payload
         );
       })
       .addCase(deleteProduct.rejected, (state, action) => {
@@ -299,8 +334,9 @@ const adminSlice = createSlice({
         state.authLoading = false;
         NotificationManager.success("Category deleted!");
         state.categories = state.categories.filter(
-          ({ _id }) => _id != action.payload
+          ({ categoryId }) => categoryId !== action.payload
         );
+        console.log(state.categories);
       })
       .addCase(deleteCategory.rejected, (state, action) => {
         state.authLoading = false;
@@ -317,6 +353,7 @@ const adminSlice = createSlice({
         state.contentLoading = true;
       })
       .addCase(fetchAdminOrder.fulfilled, (state, action) => {
+        console.log(action.payload);
         state.order = action.payload;
         state.contentLoading = false;
       })
@@ -347,3 +384,5 @@ export {
 };
 
 export default adminSlice.reducer;
+
+export const { adminLogout } = adminSlice.actions;

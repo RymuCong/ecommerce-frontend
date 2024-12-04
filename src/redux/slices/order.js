@@ -25,8 +25,11 @@ const createPaymentIntent = createAsyncThunk(
 );
 
 const fetchOrders = createAsyncThunk("orders/fetchOrders", async () => {
-  const res = await UserAxios.get(Api.GET_ORDERS);
-  return res.data.orders;
+  const res = await UserAxios.get(Api.GET_ORDERS, {
+    Authorization: localStorage.getItem("token"),
+  });
+  console.log(res.data);
+  return res.data;
 });
 
 const fetchOrder = createAsyncThunk("orders/fetchOrder", async (id) => {

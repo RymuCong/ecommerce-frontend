@@ -44,7 +44,6 @@ const fetchLatestProducts = createAsyncThunk("products/fetchLatestProducts", asy
 
 const fetchSearchProducts = createAsyncThunk("products/fetchSearchProducts", async (searchRequestDTO) => {
     const res = await Axios.post(Api.SEARCH_PRODUCTS, searchRequestDTO);
-    console.log(res.data);
     return res.data;
 });
 

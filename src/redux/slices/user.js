@@ -29,7 +29,11 @@ const signup = createAsyncThunk(
 );
 
 const login = createAsyncThunk("users/login", async ({ email, password }) => {
-  try {
+    const adminToken = localStorage.getItem("adminToken");
+    if (adminToken) {
+        throw new Error("Please logout from the admin account first.");
+    }
+    try {
     const res = await Axios.post(Api.USER_LOGIN, {
       email,
       password,
@@ -71,7 +75,12 @@ const editUser = createAsyncThunk(
 );
 
 const addToCart = createAsyncThunk("users/addToCart", async (id) => {
-  try {
+    const adminToken = localStorage.getItem("adminToken");
+    if (adminToken) {
+        throw new Error("Admins cannot add items to the cart.");
+    }
+
+    try {
     const res = await UserAxios.post(Api.ADD_TO_CART(id), {
       Authorization: localStorage.getItem("userToken"),
     });

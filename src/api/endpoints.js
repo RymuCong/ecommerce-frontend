@@ -1,6 +1,6 @@
 // Admin routes
 export const ADMIN_LOGIN = "/auth/admin/login";
-export const IS_ADMIN_LOGIN = "/auth/admin/is-login";
+export const IS_ADMIN_LOGIN = "/admin/is-login";
 export const ADMIN_PRODUCTS = "/public/product";
 export const ADMIN_PRODUCT = (id) => `/public/product/${id}`;
 export const ADMIN_ORDERS = "/admin/orders";
@@ -51,5 +51,12 @@ export const CREATE_PAYMENT_INTENT = "/create-payment-intent";
 // Tag routes
 export const CREATE_TAG = "/admin/tag";
 export const GET_TAGS = "/public/tag";
+export const GET_TAG = (id) => `/public/tag/${id}`;
 export const DELETE_TAG = (id) => `/admin/tag/${id}`;
 export const UPDATE_TAG = (id) => `/admin/tag/${id}`;
+
+// User Management routes
+export const GET_USERS = "/admin/users";
+export const GET_USER_BY_ID = (id) => `/admin/users/${id}`;
+export const DELETE_USER = (id) => `/admin/users/${id}`;
+export const REGISTER_ADMIN = "/admin/register";

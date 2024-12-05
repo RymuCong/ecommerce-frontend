@@ -6,6 +6,9 @@ import { Categories } from "../pages/adminPages/Categories/";
 import { CategoryForm } from "../pages/adminPages/CategoryForm/";
 import { Orders } from "../pages/pages/Orders/";
 import { Order } from "../pages/pages/Order/";
+import {Tags} from "../pages/adminPages/Tags";
+import {TagForm} from "../pages/adminPages/TagForm";
+import {Users} from "../pages/adminPages/Users";
 
 export const adminRoutes = [
   {
@@ -59,4 +62,24 @@ export const adminRoutes = [
     key: "/admin/order/:id",
     render: () => <Order admin />,
   },
+  {
+    path: "/admin/tags",
+    key: "/admin/tags",
+    component: Tags,
+  },
+  {
+    path: "/admin/create-tag",
+    key: "/admin/create-tag",
+    component: TagForm,
+  },
+  {
+    path: "/admin/edit-tag/:id",
+    key: "/admin/edit-tag/:id",
+    render: () => <TagForm edit />,
+  },
+  {
+    path: "/admin/users",
+    key: "/admin/users",
+    component: Users,
+  }
 ];

@@ -47,8 +47,6 @@ export const Login = withAdminAuth(false)((props) => {
         <Typography>
           This is a demo site so you can use the following credentials:
         </Typography>
-        <Typography>admin@admin.com</Typography>
-        <Typography>admin</Typography>
       </Box>
 
       <Paper component="form" className={classes.form} onSubmit={loginHandler}>

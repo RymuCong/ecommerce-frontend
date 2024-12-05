@@ -33,8 +33,6 @@ export const Categories = withAdminAuth(true)((props) => {
     dispatch(fetchCategories());
   }, [dispatch]);
 
-  console.log(categories);
-
   return (
     <Container maxWidth="lg">
       {loading ? (

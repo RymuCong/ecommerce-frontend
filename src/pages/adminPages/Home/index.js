@@ -18,24 +18,38 @@ export const Home = withAdminAuth(true)((props) => {
     <div>
       <Container maxWidth="lg" className={classes.container}>
         <Grid container spacing={3}>
-          <Grid item md={2}>
+          <Grid item md={3}>
             <Paper className={classes.paper}>
               <Typography component={Link} to="/admin/products" variant="h6">
                 Products
               </Typography>
             </Paper>
           </Grid>
-          <Grid item md={2}>
+          <Grid item md={3}>
             <Paper className={classes.paper}>
               <Typography component={Link} to="/admin/categories" variant="h6">
                 Categories
               </Typography>
             </Paper>
           </Grid>
-          <Grid item md={2}>
+          <Grid item md={3}>
             <Paper className={classes.paper}>
               <Typography component={Link} to="/admin/orders" variant="h6">
                 Orders
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item md={3}>
+            <Paper className={classes.paper}>
+              <Typography component={Link} to="/admin/tags" variant="h6">
+                Tags
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item md={3}>
+            <Paper className={classes.paper}>
+              <Typography component={Link} to="/admin/users" variant="h6">
+                Users
               </Typography>
             </Paper>
           </Grid>

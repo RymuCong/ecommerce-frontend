@@ -26,7 +26,11 @@ const isLogin = createAsyncThunk("admin/isLogin", async () => {
   const token = localStorage.getItem("adminToken");
   if (!token) throw "ERROR!";
 
-  const res = await AdminAxios.get(Api.IS_ADMIN_LOGIN);
+  const res = await AdminAxios.get(Api.IS_ADMIN_LOGIN, {
+    headers: {
+      Authorization: token,
+    },
+  });
   return res.data;
 });
 
@@ -87,7 +91,7 @@ const editProduct = createAsyncThunk(
           },
         });
         history.push("/admin/products");
-        NotificationManager.success("Product updated!");
+        // NotificationManager.success("Product updated!");
         return res.data;
       } catch (error) {
         throw error?.response?.data || error.message;
@@ -203,6 +207,65 @@ const editAdminOrder = createAsyncThunk(
     }
 );
 
+const fetchTags = createAsyncThunk("admin/fetchTags", async () => {
+    const res = await Axios.get(Api.GET_TAGS);
+    return res.data.tags;
+});
+
+const createTag = createAsyncThunk(
+    "admin/createTag",
+    async ({ tagName }) => {
+        try {
+            const token = localStorage.getItem("adminToken");
+            const res = await AdminAxios.post(Api.CREATE_TAG, { tagName }, {
+            headers: {
+                "Authorization": token,
+            },
+            });
+            history.push("/admin/tags");
+            NotificationManager.success("Tag created!");
+            return res.data;
+        } catch (error) {
+            throw error?.response?.data || error.message;
+        }
+    }
+  );
+
+const editTag = createAsyncThunk(
+    "admin/editTag",
+    async ({ id, tagName }) => {
+        try {
+            const res = await AdminAxios.patch(Api.UPDATE_TAG(id), { tagName }, {
+            headers: {
+                "Authorization": localStorage.getItem("adminToken"),
+            },
+            });
+            history.push("/admin/tags");
+            NotificationManager.success("Tag updated!");
+            return res.data;
+        } catch (error) {
+            throw error?.response?.data || error.message;
+        }
+    }
+);
+
+const deleteTag = createAsyncThunk("admin/deleteTag", async (id) => {
+    const res = await AdminAxios.delete(Api.DELETE_TAG(id), {
+        headers: {
+            "Authorization": localStorage.getItem("adminToken"),
+        },
+    });
+    console.log(res.data);
+    return res.data;
+});
+
+const fetchUsers = createAsyncThunk("admin/fetchUsers", async ({ pageNumber, pageSize, sortBy, sortDir }) => {
+    const res = await Axios.get(Api.GET_USERS, {
+        params: { pageNumber, pageSize, sortBy, sortDir },
+    });
+    return { users: res.data.users, total: res.data.totalElements };
+});
+
 const initialState = {
   admin: true,
   authLoading: false,
@@ -211,6 +274,7 @@ const initialState = {
   contentLoading: false,
   categories: [],
   orders: [],
+  tags: [],
   total : 0,
 };
 
@@ -336,7 +400,6 @@ const adminSlice = createSlice({
         state.categories = state.categories.filter(
           ({ categoryId }) => categoryId !== action.payload
         );
-        console.log(state.categories);
       })
       .addCase(deleteCategory.rejected, (state, action) => {
         state.authLoading = false;
@@ -363,7 +426,64 @@ const adminSlice = createSlice({
       .addCase(editAdminOrder.fulfilled, (state, action) => {
         state.order = action.payload;
         state.authLoading = false;
-      });
+      })
+        .addCase(editAdminOrder.rejected, (state, action) => {
+            state.authLoading = false;
+            NotificationManager.error(action.error.message);
+        })
+        .addCase(fetchTags.pending, (state, action) => {
+            state.contentLoading = true;
+        })
+        .addCase(fetchTags.fulfilled, (state, action) => {
+            state.tags = action.payload;
+            state.contentLoading = false;
+        })
+        .addCase(createTag.pending, (state, action) => {
+            state.authLoading = true;
+        })
+        .addCase(createTag.fulfilled, (state, action) => {
+            state.authLoading = false;
+        })
+        .addCase(createTag.rejected, (state, action) => {
+            state.authLoading = false;
+            NotificationManager.error(action.error.message);
+        })
+        .addCase(editTag.pending, (state, action) => {
+            state.authLoading = true;
+        })
+        .addCase(editTag.fulfilled, (state, action) => {
+            state.authLoading = false;
+        })
+        .addCase(editTag.rejected, (state, action) => {
+            state.authLoading = false;
+            NotificationManager.error(action.error.message);
+        })
+        .addCase(deleteTag.pending, (state, action) => {
+            state.authLoading = true;
+        })
+        .addCase(deleteTag.fulfilled, (state, action) => {
+            state.authLoading = false;
+            NotificationManager.success("Tag deleted!");
+            state.tags = state.tags.filter(
+                ({ tagId }) => tagId !== action.payload.tagId
+            );
+        })
+        .addCase(deleteTag.rejected, (state, action) => {
+            state.authLoading = false;
+            NotificationManager.error(action.error.message);
+        })
+        .addCase(fetchUsers.pending, (state, action) => {
+            state.contentLoading = true;
+        })
+        .addCase(fetchUsers.fulfilled, (state, action) => {
+            state.users = action.payload.users;
+            state.total = action.payload.total;
+            state.contentLoading = false;
+        })
+        .addCase(fetchUsers.rejected, (state, action) => {
+            state.contentLoading = false;
+            NotificationManager.error(action.error.message);
+        });
   },
 });
 
@@ -381,6 +501,11 @@ export {
   fetchAdminOrders,
   fetchAdminOrder,
   editAdminOrder,
+    fetchTags,
+    createTag,
+    editTag,
+    deleteTag,
+    fetchUsers,
 };
 
 export default adminSlice.reducer;

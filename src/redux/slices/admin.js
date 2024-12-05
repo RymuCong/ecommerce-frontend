@@ -9,7 +9,11 @@ import { NotificationManager } from "react-notifications";
 import { history } from "../../utils";
 
 const login = createAsyncThunk("admin/login", async ({ email, password }) => {
-  try {
+    const userToken = localStorage.getItem("userToken");
+    if (userToken) {
+        throw new Error("Please logout from the user account first.");
+    }
+    try {
     const res = await Axios.post(Api.ADMIN_LOGIN, {
       email,
       password,
@@ -255,15 +259,45 @@ const deleteTag = createAsyncThunk("admin/deleteTag", async (id) => {
             "Authorization": localStorage.getItem("adminToken"),
         },
     });
-    console.log(res.data);
     return res.data;
 });
 
 const fetchUsers = createAsyncThunk("admin/fetchUsers", async ({ pageNumber, pageSize, sortBy, sortDir }) => {
     const res = await Axios.get(Api.GET_USERS, {
         params: { pageNumber, pageSize, sortBy, sortDir },
+      headers: {
+          "Authorization": localStorage.getItem("adminToken"),
+      }
     });
+    console.log(res.data);
     return { users: res.data.users, total: res.data.totalElements };
+});
+
+const deleteUser = createAsyncThunk("admin/deleteUser", async (id) => {
+    const res = await AdminAxios.delete(Api.DELETE_USER(id), {
+        headers: {
+            "Authorization": localStorage.getItem("adminToken"),
+        },
+    });
+    return res.data;
+});
+
+const createUser = createAsyncThunk("admin/createUser", async ({ firstName, lastName, email, password, roles }) => {
+    const data = {
+        firstName,
+        lastName,
+        email,
+        password,
+        roles
+    };
+
+    const res = await AdminAxios.post(Api.REGISTER_USER, data, {
+        headers: {
+            "Authorization": localStorage.getItem("adminToken"),
+        },
+    });
+    history.push("/admin/users");
+    return res.data;
 });
 
 const initialState = {
@@ -275,6 +309,7 @@ const initialState = {
   categories: [],
   orders: [],
   tags: [],
+  users: [],
   total : 0,
 };
 
@@ -478,10 +513,36 @@ const adminSlice = createSlice({
         .addCase(fetchUsers.fulfilled, (state, action) => {
             state.users = action.payload.users;
             state.total = action.payload.total;
+            console.log(action.payload);
             state.contentLoading = false;
         })
         .addCase(fetchUsers.rejected, (state, action) => {
             state.contentLoading = false;
+            NotificationManager.error(action.error.message);
+        })
+        .addCase(deleteUser.pending, (state, action) => {
+            state.authLoading = true;
+        })
+        .addCase(deleteUser.fulfilled, (state, action) => {
+            state.authLoading = false;
+            NotificationManager.success("User deleted!");
+            state.users = state.users.filter(
+                ({ userId }) => userId !== action.payload
+            );
+        })
+        .addCase(deleteUser.rejected, (state, action) => {
+            state.authLoading = false;
+            NotificationManager.error(action.error.message);
+        })
+        .addCase(createUser.pending, (state, action) => {
+            state.authLoading = true;
+        })
+        .addCase(createUser.fulfilled, (state, action) => {
+            state.authLoading = false;
+            NotificationManager.success("User created!");
+        })
+        .addCase(createUser.rejected, (state, action) => {
+            state.authLoading = false;
             NotificationManager.error(action.error.message);
         });
   },
@@ -506,6 +567,8 @@ export {
     editTag,
     deleteTag,
     fetchUsers,
+    deleteUser,
+    createUser,
 };
 
 export default adminSlice.reducer;

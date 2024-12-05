@@ -9,6 +9,7 @@ import { Order } from "../pages/pages/Order/";
 import {Tags} from "../pages/adminPages/Tags";
 import {TagForm} from "../pages/adminPages/TagForm";
 import {Users} from "../pages/adminPages/Users";
+import {UserForm} from "../pages/adminPages/UserForm";
 
 export const adminRoutes = [
   {
@@ -81,5 +82,10 @@ export const adminRoutes = [
     path: "/admin/users",
     key: "/admin/users",
     component: Users,
+  },
+  {
+    path: "/admin/create-user",
+    key: "/admin/create-user",
+    component: UserForm,
   }
 ];

@@ -36,7 +36,7 @@ export const Users = withAdminAuth(true)((props) => {
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortBy, setSortBy] = useState("userId");
   const [sortDir, setSortDir] = useState("desc");
 
   useEffect(() => {
@@ -85,9 +85,10 @@ export const Users = withAdminAuth(true)((props) => {
                   <FormControl className={classes.formControl} style={{ marginRight: '20px' }}>
                     <InputLabel>Sort By</InputLabel>
                     <Select value={sortBy} onChange={handleSortByChange}>
-                      <MenuItem value="username">Username</MenuItem>
+                      <MenuItem value="userId">User ID</MenuItem>
                       <MenuItem value="email">Email</MenuItem>
-                      <MenuItem value="createdAt">Date</MenuItem>
+                      <MenuItem value="firstName">First name</MenuItem>
+                      <MenuItem value="lastName">Last name</MenuItem>
                     </Select>
                   </FormControl>
                   <FormControl className={classes.formControl}>
@@ -105,10 +106,10 @@ export const Users = withAdminAuth(true)((props) => {
                   <TableHead>
                     <TableRow>
                       <TableCell></TableCell>
-                      <TableCell>Username</TableCell>
+                      <TableCell>User ID</TableCell>
                       <TableCell>Email</TableCell>
                       <TableCell>Role</TableCell>
-                      <TableCell>Created At</TableCell>
+                      <TableCell>Full Name</TableCell>
                       <TableCell></TableCell>
                     </TableRow>
                   </TableHead>

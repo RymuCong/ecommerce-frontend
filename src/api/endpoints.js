@@ -57,6 +57,6 @@ export const UPDATE_TAG = (id) => `/admin/tag/${id}`;
 
 // User Management routes
 export const GET_USERS = "/admin/users";
-export const GET_USER_BY_ID = (id) => `/admin/users/${id}`;
+// export const GET_USER_BY_ID = (id) => `/admin/users/${id}`;
 export const DELETE_USER = (id) => `/admin/users/${id}`;
-export const REGISTER_ADMIN = "/admin/register";
+export const REGISTER_USER = "/admin/users/register";

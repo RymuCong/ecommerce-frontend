@@ -100,7 +100,7 @@ export const ProductForm = withAdminAuth(true)(({ edit }) => {
 
         (async () => {
             const tagsResponse = await Axios.get(Api.GET_TAGS);
-            setTags(tagsResponse.data);
+            setTags(tagsResponse.data.tags);
         })();
     }, []);
 

@@ -43,7 +43,7 @@ export const Product = (props) => {
           className={classes.name}
           variant="h5"
           component={Link}
-          to={`/product/${props._id}`}
+          to={`/product/${props.productId}`}
         >
           {props.productName}
         </Typography>

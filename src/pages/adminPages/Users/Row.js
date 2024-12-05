@@ -9,7 +9,8 @@ import {
   TableCell,
   TableBody,
   Paper,
-  IconButton, CircularProgress
+  IconButton,
+  CircularProgress,
 } from "@material-ui/core";
 import {
   KeyboardArrowDown,
@@ -21,9 +22,9 @@ import { useStyles } from "./style";
 import moment from "moment";
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteProduct } from "../../../redux/slices/admin";
+import { deleteUser } from "../../../redux/slices/admin";
 
-export const Row = ({ product }) => {
+export const Row = ({ user }) => {
   const { push } = useHistory();
   const dispatch = useDispatch();
   const loading = useSelector((state) => state.admin.authLoading);
@@ -31,87 +32,90 @@ export const Row = ({ product }) => {
   const [open, setOpen] = useState(false);
   const collapseRef = useRef(null);
 
-  // const handleClose = () => setOpenReviews(false);
-  // const handleOpen = () => setOpenReviews(true);
+  const deleteUserHandler = () => {
+    dispatch(deleteUser(user.userId));
+  };
 
-  const deleteProductHandler = () => {
-    dispatch(deleteProduct(product.productId));
+  const getFullName = (firstName, lastName) => {
+    if (!firstName && !lastName) return "Unknown";
+    if (!firstName) return lastName;
+    if (!lastName) return firstName;
+    return `${firstName} ${lastName}`;
   };
 
   return (
-    <>
-      <TableRow key={product.productId} className={classes.row}>
-        <TableCell>
-          <IconButton size="small" onClick={() => setOpen(!open)}>
-            {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-          </IconButton>
-        </TableCell>
-        <TableCell>
-          <div className={classes.img}>
-            <img src={product.image} />
-          </div>
-        </TableCell>
-        <TableCell>{product.productName}</TableCell>
-        <TableCell>{product.price}đ</TableCell>
-        <TableCell>{product.quantity}</TableCell>
-        <TableCell>{product.specialPrice}đ</TableCell>
-        <TableCell>{product?.category?.categoryName || "No category"}</TableCell>
-        <TableCell>
-          {loading ? (
-            <CircularProgress size={20} color="primary" />
-          ) : (
-            <>
-              <IconButton
-                onClick={() => push(`/admin/edit-product/${product.productId}`)}
-                color="primary"
-                size="small"
-                style={{ marginRight: "10px" }}
-              >
-                <EditOutlined />
-              </IconButton>
-              <IconButton
-                color="secondary"
-                size="small"
-                onClick={deleteProductHandler}
-              >
-                <DeleteOutlineOutlined />
-              </IconButton>
-            </>
-          )}
-        </TableCell>
-      </TableRow>
+      <>
+        <TableRow key={user.userId} className={classes.row}>
+          <TableCell>
+            <IconButton size="small" onClick={() => setOpen(!open)}>
+              {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+            </IconButton>
+          </TableCell>
+          <TableCell>{user.userId}</TableCell>
+          <TableCell>{user.email}</TableCell>
+          <TableCell>
+            {user.roles && user.roles.length > 0 ? (
+                user.roles.map((role) => role.roleName).join(", ")
+            ) : (
+                "No roles for this user"
+            )}
+          </TableCell>
+          <TableCell>{getFullName(user.firstName, user.lastName)}</TableCell>
+          <TableCell>
+            {loading ? (
+                <CircularProgress size={20} color="primary" />
+            ) : (
+                <>
+                  {/*<IconButton*/}
+                  {/*    onClick={() => push(`/admin/edit-user/${user.userId}`)}*/}
+                  {/*    color="primary"*/}
+                  {/*    size="small"*/}
+                  {/*    style={{ marginRight: "10px" }}*/}
+                  {/*>*/}
+                  {/*  <EditOutlined />*/}
+                  {/*</IconButton>*/}
+                  <IconButton
+                      color="secondary"
+                      size="small"
+                      onClick={deleteUserHandler}
+                  >
+                    <DeleteOutlineOutlined />
+                  </IconButton>
+                </>
+            )}
+          </TableCell>
+        </TableRow>
 
         <TableRow>
-          <TableCell colSpan={8} style={{ paddingBottom: 0, paddingTop: 0 }}>
+          <TableCell colSpan={6} style={{ paddingBottom: 0, paddingTop: 0 }}>
             <Collapse in={open} timeout="auto" unmountOnExit ref={collapseRef}>
               <Box marginTop={2} paddingBottom={2}>
                 <Typography variant="h5">More Detail</Typography>
-                <Table
-                    size="small"
-                    style={{ marginTop: "10px" }}
-                    component={Paper}
-                >
+                <Table size="small" style={{ marginTop: "10px" }} component={Paper}>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Description</TableCell>
-                      <TableCell>Category</TableCell>
-                      <TableCell>Created</TableCell>
-                      <TableCell>Updated</TableCell>
-                      <TableCell>Discount</TableCell>
-                      <TableCell></TableCell>
+                      <TableCell>First name</TableCell>
+                      <TableCell>Last name</TableCell>
+                      <TableCell>Mobile number</TableCell>
+                      <TableCell>Address</TableCell>
                     </TableRow>
                   </TableHead>
 
                   <TableBody>
-                    <TableCell>{product.description}</TableCell>
-                    <TableCell>{product.category.categoryName}</TableCell>
-                    <TableCell>{moment(product?.createdAt).fromNow()}</TableCell>
-                    <TableCell>
-                      {moment(product?.updatedAt).fromNow()}
-                    </TableCell>
-                    <TableCell>
-                      {product.discount ? `${product.discount}%` : "No discount"}
-                    </TableCell>
+                    <TableRow>
+                      <TableCell>{user?.firstName}</TableCell>
+                      <TableCell>{user?.lastName}</TableCell>
+                      <TableCell>{user?.mobileNumber}</TableCell>
+                      <TableCell>
+                        {user.address && user.address.length > 0 ? (
+                            user.address.map((address) => (
+                                <div key={address.addressId}>{address.addressDetail}</div>
+                            ))
+                        ) : (
+                            "No addresses available"
+                        )}
+                      </TableCell>
+                    </TableRow>
                   </TableBody>
                 </Table>
               </Box>

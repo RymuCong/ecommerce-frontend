@@ -43,8 +43,9 @@ const fetchLatestProducts = createAsyncThunk("products/fetchLatestProducts", asy
 });
 
 const fetchSearchProducts = createAsyncThunk("products/fetchSearchProducts", async (searchRequestDTO) => {
+    console.log(searchRequestDTO);
     const res = await Axios.post(Api.SEARCH_PRODUCTS, searchRequestDTO);
-    return res.data;
+    return { products: res.data.products, total: res.data.totalElements };
 });
 
 const addReview = createAsyncThunk(
@@ -114,8 +115,8 @@ const productsSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchSearchProducts.fulfilled, (state, action) => {
-        console.log(action.payload);
-          state.products = action.payload;
+          state.products = action.payload.products;
+          state.total = action.payload.total;
         state.loading = false;
       })
       .addCase(addReview.pending, (state, action) => {

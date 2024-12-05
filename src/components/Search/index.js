@@ -17,8 +17,11 @@ export const Search = ({ className }) => {
             searchTerm: searchText,
             sortBy: "name", // Adjust sortBy as needed
             order: "ASC", // Adjust order as needed
-            page: 0,
-            size: 10,
+            pageNumber: 0,
+            pageSize: 10,
+            totalElements: 0, // Default value, will be set by backend
+            totalPages: 0, // Default value, will be set by backend
+            lastPage: false // Default value, will be set by backend
         };
 
         dispatch(fetchSearchProducts(searchRequestDTO));

@@ -29,6 +29,7 @@ import { fetchCategories } from "../../redux/slices/category"
 import { NavLink } from "react-router-dom"
 import { Search } from "../Search/"
 import { userLogout } from "../../redux/slices/user"
+import { setSearchQuery } from "../../redux/slices/product";
 
 export const Header = () => {
   const dispatch = useDispatch()
@@ -44,6 +45,10 @@ export const Header = () => {
   useEffect(() => {
     dispatch(fetchCategories())
   }, [])
+
+  const handleSearchSubmit = (searchText) => {
+    dispatch(setSearchQuery(searchText));
+  };
 
   const closeDropdownHandler = () => setAnchorEl(null)
   const openDropdownHandler = (e) => setAnchorEl(e.currentTarget)
@@ -85,11 +90,11 @@ export const Header = () => {
           to="/"
           exact
         >
-          ReactShop
+          AriusShop
         </Typography>
 
         <Hidden smDown>
-          <Search className={classes.input} />
+          <Search className={classes.input}  onSearchSubmit={handleSearchSubmit} />
         </Hidden>
 
         <Hidden mdDown>

@@ -9,7 +9,6 @@ import {
   Button,
   CircularProgress,
 } from "@material-ui/core";
-import { Rating } from "@material-ui/lab";
 import { useHistory, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../redux/slices/user";
@@ -19,6 +18,15 @@ export const Product = (props) => {
   const classes = useStyles();
   const { push } = useHistory();
   const loading = useSelector((state) => state.users.cartLoading);
+  const user = useSelector((state) => state.users.user);
+
+  const handleAddToCart = () => {
+    if (!user) {
+      push("/login");
+    } else {
+      dispatch(addToCart(props.productId));
+    }
+  };
 
   return (
     <Card className={classes.root}>
@@ -63,13 +71,13 @@ export const Product = (props) => {
           View
         </Button>
         <Button
-          size="small"
-          color="secondary"
-          onClick={() => dispatch(addToCart(props.productId))}
-          disabled={loading}
-          endIcon={
-            loading ? <CircularProgress size={20} color="secondary" /> : null
-          }
+            size="small"
+            color="secondary"
+            onClick={handleAddToCart}
+            disabled={loading}
+            endIcon={
+              loading ? <CircularProgress size={20} color="secondary" /> : null
+            }
         >
           Add to cart
         </Button>

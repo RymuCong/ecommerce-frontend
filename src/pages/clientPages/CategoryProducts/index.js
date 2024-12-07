@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Products } from "../../../components/Products/";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCategoryProducts } from "../../../redux/slices/product";
+import {fetchCategoryProducts, fetchSearchProducts} from "../../../redux/slices/product";
 import { useParams } from "react-router-dom";
 import { Container, Typography, Box, TablePagination, Select, MenuItem, FormControl, InputLabel } from "@material-ui/core";
 import { useStyles } from "./style";
@@ -14,15 +14,24 @@ export const CategoryProducts = () => {
   const products = useSelector((state) => state.products.products);
   const total = useSelector((state) => state.products.total);
   const loading = useSelector((state) => state.products.loading);
+  const pageSize = useSelector((state) => state.products.pagination.pageSize);
+  const pageNumber = useSelector((state) => state.products.pagination.pageNumber);
+  const searchQuery = useSelector((state) => state.products.searchQuery)
 
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(12);
+  const [page, setPage] = useState(pageNumber);
+  const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [sortBy, setSortBy] = useState("productName");
   const [sortDir, setSortDir] = useState("asc");
 
+  const categoryName = products[0]?.category?.categoryName || "";
+
   useEffect(() => {
-    dispatch(fetchCategoryProducts({ categoryId: id, pageNumber: page, pageSize: rowsPerPage, sortBy, sortDir }));
-  }, [id, page, rowsPerPage, sortBy, sortDir]);
+    if (searchQuery) {
+      dispatch(fetchSearchProducts({ searchTerm: searchQuery, pageNumber: page, pageSize: rowsPerPage, sortBy, sortDir, field: categoryName }));
+    } else {
+      dispatch(fetchCategoryProducts({ categoryId: id, pageNumber: page, pageSize: rowsPerPage, sortBy, sortDir }));
+    }
+  }, [id, page, rowsPerPage, sortBy, sortDir, searchQuery, categoryName]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -40,9 +49,6 @@ export const CategoryProducts = () => {
   const handleSortDirChange = (event) => {
     setSortDir(event.target.value);
   };
-
-  console.log(products);
-  console.log(total);
 
   return (
       <Container maxWidth="lg">

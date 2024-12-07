@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Products } from "../../../components/Products/";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllProducts } from "../../../redux/slices/product";
+import { fetchAllProducts, fetchSearchProducts } from "../../../redux/slices/product";
 import { Container, Typography, Box, TablePagination, Select, MenuItem, FormControl, InputLabel } from "@material-ui/core";
 import { useStyles } from "./style";
 import { Loader } from "../../../components/Loader/";
@@ -11,17 +11,23 @@ export const Shop = () => {
   const classes = useStyles();
   const products = useSelector((state) => state.products.products);
   const total = useSelector((state) => state.products.total);
-  const filter = useSelector((state) => state.products.filter);
   const loading = useSelector((state) => state.products.loading);
+  const pageSize = useSelector((state) => state.products.pagination.pageSize);
+  const pageNumber = useSelector((state) => state.products.pagination.pageNumber);
+  const searchQuery = useSelector((state) => state.products.searchQuery);
 
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(12);
+  const [page, setPage] = useState(pageNumber);
+  const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [sortBy, setSortBy] = useState("productName");
   const [sortDir, setSortDir] = useState("asc");
 
   useEffect(() => {
-    dispatch(fetchAllProducts({ pageNumber: page, pageSize: rowsPerPage, sortBy, sortDir }));
-  }, [page, rowsPerPage, sortBy, sortDir]);
+    if (searchQuery) {
+      dispatch(fetchSearchProducts({ searchTerm: searchQuery, pageNumber: page, pageSize: rowsPerPage, sortBy, sortDir }));
+    } else {
+      dispatch(fetchAllProducts({ pageNumber: page, pageSize: rowsPerPage, sortBy, sortDir }));
+    }
+  }, [page, rowsPerPage, sortBy, sortDir, searchQuery]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -40,8 +46,6 @@ export const Shop = () => {
     setSortDir(event.target.value);
   };
 
-  // const filteredProducts = filterProducts(products, filter);
-
   return (
       <Container maxWidth="lg">
         {loading ? (
@@ -52,24 +56,21 @@ export const Shop = () => {
                 Our Products
               </Typography>
               <Box marginBottom={5} className={classes.filterRow}>
-                {/*<Filter />*/}
-                {/*<Box marginTop={5} className={classes.sortControls}>*/}
-                  <FormControl className={classes.formControl} style={{ marginRight: '20px' }}>
-                    <InputLabel>Sort By</InputLabel>
-                    <Select value={sortBy} onChange={handleSortByChange}>
-                      <MenuItem value="productName">Product Name</MenuItem>
-                      <MenuItem value="price">Price</MenuItem>
-                      <MenuItem value="createdAt">Date</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <FormControl className={classes.formControl}>
-                    <InputLabel>Direction</InputLabel>
-                    <Select value={sortDir} onChange={handleSortDirChange}>
-                      <MenuItem value="asc">Ascending</MenuItem>
-                      <MenuItem value="desc">Descending</MenuItem>
-                    </Select>
-                  </FormControl>
-                {/*</Box>*/}
+                <FormControl className={classes.formControl} style={{ marginRight: '20px' }}>
+                  <InputLabel>Sort By</InputLabel>
+                  <Select value={sortBy} onChange={handleSortByChange}>
+                    <MenuItem value="productName">Product Name</MenuItem>
+                    <MenuItem value="price">Price</MenuItem>
+                    <MenuItem value="createdAt">Date</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl className={classes.formControl}>
+                  <InputLabel>Direction</InputLabel>
+                  <Select value={sortDir} onChange={handleSortDirChange}>
+                    <MenuItem value="asc">Ascending</MenuItem>
+                    <MenuItem value="desc">Descending</MenuItem>
+                  </Select>
+                </FormControl>
               </Box>
               <Products products={products} />
               <TablePagination

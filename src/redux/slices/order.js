@@ -34,7 +34,7 @@ const fetchOrders = createAsyncThunk("orders/fetchOrders", async () => {
 
 const fetchOrder = createAsyncThunk("orders/fetchOrder", async (id) => {
   const res = await UserAxios.get(Api.GET_ORDER(id));
-  return res.data.order;
+  return res.data;
 });
 
 const deleteOrder = createAsyncThunk("orders/deleteOrder", async (id) => {

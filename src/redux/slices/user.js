@@ -11,22 +11,19 @@ const initialState = {
   cartLoading: false,
 };
 
-const signup = createAsyncThunk(
-  "users/signup",
-  async ({ name, email, password }) => {
+const signup = createAsyncThunk("users/signup", async (userData, { dispatch }) => {
     try {
-      const res = await Axios.post(Api.USER_SIGNUP, {
-        name,
-        email,
-        password,
-      });
-      history.push("/");
-      return res.data;
+        dispatch(setAuthLoading(true));
+        const response = await Axios.post(Api.USER_SIGNUP, userData);
+        // dispatch(setUser(response.data.user));
+        // dispatch(setAuthLoading(false));
+        console.log(response.data);
+        return response.data;
     } catch (error) {
-      throw error?.response?.data || error.message;
+        dispatch(setAuthLoading(false));
+        throw error?.response?.data || error.message;
     }
-  }
-);
+});
 
 const login = createAsyncThunk("users/login", async ({ email, password }) => {
     const adminToken = localStorage.getItem("adminToken");
@@ -59,15 +56,14 @@ const isLogin = createAsyncThunk("users/isLogin", async () => {
 
 const editUser = createAsyncThunk(
   "users/editUser",
-  async ({ name, email, password }) => {
+  async ({ firstName, lastName, email, password, mobileNumber, addresses  }) => {
     try {
       const res = await UserAxios.patch(Api.UPDATE_USER, {
-        name,
-        email,
-        password,
+          firstName, lastName, email, password, mobileNumber, addresses
       });
       history.push("/profile");
-      return res.data.user;
+      console.log(res.data);
+      return res.data;
     } catch (error) {
       throw error?.response?.data || error.message;
     }
@@ -162,6 +158,12 @@ const usersSlice = createSlice({
         totalPrice: 0,
       };
     },
+    setAuthLoading(state, action) {
+      state.authLoading = action.payload;
+    },
+    setUser(state, action) {
+      state.user = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -170,6 +172,8 @@ const usersSlice = createSlice({
       })
       .addCase(signup.fulfilled, (state, action) => {
         state.user = action.payload.user;
+        state.profile = action.payload.user;
+        console.log(action.payload);
         localStorage.setItem("userToken", `Bearer ${action.payload.token}`);
         state.authLoading = false;
         NotificationManager.success("Signed up!");
@@ -183,6 +187,7 @@ const usersSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.user = action.payload;
+        state.profile = action.payload;
         localStorage.setItem("userToken", `Bearer ${action.payload.token}`);
         state.authLoading = false;
         NotificationManager.success("Logged in!");
@@ -196,18 +201,21 @@ const usersSlice = createSlice({
       })
       .addCase(isLogin.fulfilled, (state, action) => {
         state.user = action.payload;
+        state.profile = action.payload;
         state.loading = false;
       })
       .addCase(isLogin.rejected, (state, action) => {
         state.loading = false;
         localStorage.removeItem("userToken");
-        state.user = null
+        state.user = null;
+        state.profile = null;
       })
       .addCase(editUser.pending, (state, action) => {
         state.authLoading = true;
       })
       .addCase(editUser.fulfilled, (state, action) => {
         state.user = action.payload;
+        state.profile = action.payload;
         state.authLoading = false;
         NotificationManager.success("Profile updated!");
       })
@@ -286,6 +294,6 @@ export {
     createOrder,
 };
 
-export const { userLogout, emptyCart } = usersSlice.actions;
+export const { userLogout, emptyCart, setUser, setAuthLoading } = usersSlice.actions;
 
 export default usersSlice.reducer;

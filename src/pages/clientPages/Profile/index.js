@@ -19,7 +19,9 @@ import { withUserAuth } from "../../../hoc/withUserAuth";
 export const Profile = withUserAuth(true)((props) => {
   const classes = useStyles();
   const { push } = useHistory();
-  const profile = useSelector((state) => state.users.user);
+  const profile = useSelector((state) => state.users.profile);
+
+  console.log(profile);
 
   return (
     <Container maxWidth="lg">
@@ -41,6 +43,22 @@ export const Profile = withUserAuth(true)((props) => {
             <TableRow>
               <TableCell component="th">Email</TableCell>
               <TableCell>{profile?.email}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell component="th">Mobile Number</TableCell>
+              <TableCell>{profile?.mobileNumber}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell component="th">Addresses</TableCell>
+              <TableCell>
+                {profile?.addresses && profile.addresses.length > 0 ? (
+                    profile.addresses.map((address, index) => (
+                        <Typography key={index}>{address.addressDetail}</Typography>
+                    ))
+                ) : (
+                    "No address"
+                )}
+              </TableCell>
             </TableRow>
             <TableRow>
               <TableCell>

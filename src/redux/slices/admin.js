@@ -274,12 +274,16 @@ const fetchUsers = createAsyncThunk("admin/fetchUsers", async ({ pageNumber, pag
 });
 
 const deleteUser = createAsyncThunk("admin/deleteUser", async (id) => {
-    const res = await AdminAxios.delete(Api.DELETE_USER(id), {
-        headers: {
-            "Authorization": localStorage.getItem("adminToken"),
-        },
-    });
-    return res.data;
+    try {
+        const res = await AdminAxios.delete(Api.DELETE_USER(id), {
+            headers: {
+                "Authorization": localStorage.getItem("adminToken"),
+            },
+        });
+        return res.data;
+    } catch (error) {
+        throw error?.response?.data || error.message;
+    }
 });
 
 const createUser = createAsyncThunk("admin/createUser", async ({ firstName, lastName, email, password, roles }) => {

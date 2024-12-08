@@ -104,6 +104,7 @@ export const Products = withAdminAuth(true)((props) => {
                   <TableHead>
                     <TableRow>
                       <TableCell></TableCell>
+                      <TableCell>Id</TableCell>
                       <TableCell>Image</TableCell>
                       <TableCell>Name</TableCell>
                       <TableCell>Price</TableCell>

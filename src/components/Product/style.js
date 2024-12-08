@@ -35,4 +35,15 @@ export const useStyles = makeStyles({
   media: {
     backgroundSize: "contain",
   },
+  tags: {
+    display: "flex",
+    flexWrap: "wrap",
+    marginBottom: "10px",
+  },
+    tag: {
+        marginRight: "5px",
+    },
+  noTag: {
+    color: "rgb(162 162 162)",
+  },
 });

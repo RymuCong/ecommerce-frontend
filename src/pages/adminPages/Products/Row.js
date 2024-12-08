@@ -46,6 +46,7 @@ export const Row = ({ product }) => {
             {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
           </IconButton>
         </TableCell>
+        <TableCell>{product.productId}</TableCell>
         <TableCell>
           <div className={classes.img}>
             <img src={product.image} />
@@ -97,7 +98,7 @@ export const Row = ({ product }) => {
                       <TableCell>Category</TableCell>
                       <TableCell>Created</TableCell>
                       <TableCell>Updated</TableCell>
-                      <TableCell>Discount</TableCell>
+                      <TableCell>Tags</TableCell>
                       <TableCell></TableCell>
                     </TableRow>
                   </TableHead>
@@ -110,7 +111,11 @@ export const Row = ({ product }) => {
                       {moment(product?.updatedAt).fromNow()}
                     </TableCell>
                     <TableCell>
-                      {product.discount ? `${product.discount}%` : "No discount"}
+                      {product.tags && product.tags.length > 0 ? (
+                          product.tags.map((tag) => tag.tagName).join(", ")
+                      ) : (
+                          "No tag"
+                      )}
                     </TableCell>
                   </TableBody>
                 </Table>

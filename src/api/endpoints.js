@@ -7,7 +7,7 @@ export const ADMIN_ORDERS = "/admin/orders";
 export const ADMIN_ORDER = (id) => `/admin/orders/${id}`;
 
 // User routes
-export const USER_SIGNUP = "/user/signup";
+export const USER_SIGNUP = "/auth/register";
 export const USER_LOGIN = "/auth/login";
 export const IS_USER_LOGIN = "/user/is-login";
 export const UPDATE_USER = "/user";
@@ -42,7 +42,7 @@ export const CREATE_ORDER_STRIPE = "/order";
 export const CREATE_ORDER = "/user/cart/order";
 export const UPDATE_ORDER = (id) => `/admin/orders/${id}`;
 export const DELETE_ORDER = (id) => `/order/${id}`;
-export const GET_ORDER = (id) => `/order/${id}`;
+export const GET_ORDER = (id) => `/user/orders/${id}`;
 export const GET_ORDERS = "/user/orders";
 
 // Payment routes

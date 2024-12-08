@@ -67,8 +67,6 @@ export const Order = ({ admin }) => {
     dispatch(admin ? fetchAdminOrder(id) : fetchOrder(id));
   }, [id, history.location.pathname]);
 
-  console.log(order);
-
   return (
     <Container maxWidth="lg">
       {contentLoading ? (
@@ -92,7 +90,7 @@ export const Order = ({ admin }) => {
                   <span>Items</span> {items}
                 </Typography>
                 <Typography>
-                  <span>Date</span> {moment(order?.date).fromNow()}
+                  <span>Date</span> {moment(order?.orderDate).fromNow()}
                 </Typography>
                 <Typography>
                   <span>Price</span> ${order?.totalAmount}
@@ -138,11 +136,7 @@ export const Order = ({ admin }) => {
             <Grid item md={6} xs={12}>
               <Paper className={classes.paper}>
                 <Typography variant="h6">Shipping Address</Typography>
-                <Typography>{order?.shippingAddress?.country}</Typography>
-                <Typography>{order?.shippingAddress?.city}</Typography>
-                <Typography>{order?.shippingAddress?.address1}</Typography>
-                <Typography>{order?.shippingAddress?.address2}</Typography>
-                <Typography>{order?.shippingAddress?.zipCode}</Typography>
+                <Typography>{order?.shippingAddress}</Typography>
               </Paper>
             </Grid>
           </Grid>

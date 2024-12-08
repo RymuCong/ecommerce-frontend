@@ -11,6 +11,12 @@ import {
   Paper,
   IconButton,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
 } from "@material-ui/core";
 import {
   KeyboardArrowDown,
@@ -30,10 +36,20 @@ export const Row = ({ user }) => {
   const loading = useSelector((state) => state.admin.authLoading);
   const classes = useStyles();
   const [open, setOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const collapseRef = useRef(null);
+
+  const handleConfirmOpen = () => {
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmClose = () => {
+    setConfirmOpen(false);
+  };
 
   const deleteUserHandler = () => {
     dispatch(deleteUser(user.userId));
+    handleConfirmClose();
   };
 
   const getFullName = (firstName, lastName) => {
@@ -66,18 +82,10 @@ export const Row = ({ user }) => {
                 <CircularProgress size={20} color="primary" />
             ) : (
                 <>
-                  {/*<IconButton*/}
-                  {/*    onClick={() => push(`/admin/edit-user/${user.userId}`)}*/}
-                  {/*    color="primary"*/}
-                  {/*    size="small"*/}
-                  {/*    style={{ marginRight: "10px" }}*/}
-                  {/*>*/}
-                  {/*  <EditOutlined />*/}
-                  {/*</IconButton>*/}
                   <IconButton
                       color="secondary"
                       size="small"
-                      onClick={deleteUserHandler}
+                      onClick={handleConfirmOpen}
                   >
                     <DeleteOutlineOutlined />
                   </IconButton>
@@ -108,8 +116,8 @@ export const Row = ({ user }) => {
                       <TableCell>{user?.mobileNumber}</TableCell>
                       <TableCell>
                         {user.address && user.address.length > 0 ? (
-                            user.address.map((address) => (
-                                <div key={address.addressId}>{address.addressDetail}</div>
+                            user.address.map((address, index) => (
+                                <div key={index}>{address.addressDetail}</div>
                             ))
                         ) : (
                             "No addresses available"
@@ -122,6 +130,28 @@ export const Row = ({ user }) => {
             </Collapse>
           </TableCell>
         </TableRow>
+
+        <Dialog
+            open={confirmOpen}
+            onClose={handleConfirmClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you sure you want to delete this user?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleConfirmClose} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={deleteUserHandler} color="secondary" autoFocus>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </>
   );
 };

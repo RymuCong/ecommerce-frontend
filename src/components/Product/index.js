@@ -7,11 +7,12 @@ import {
   CardContent,
   Typography,
   Button,
-  CircularProgress,
+  CircularProgress, Chip,
 } from "@material-ui/core";
 import { useHistory, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../redux/slices/user";
+import {NotificationManager} from "react-notifications";
 
 export const Product = (props) => {
   const dispatch = useDispatch();
@@ -22,6 +23,7 @@ export const Product = (props) => {
 
   const handleAddToCart = () => {
     if (!user) {
+      NotificationManager.warning("Please login to add to cart", "Warning", 2000);
       push("/login");
     } else {
       dispatch(addToCart(props.productId));
@@ -55,6 +57,17 @@ export const Product = (props) => {
         >
           {props.productName}
         </Typography>
+        {props.tags && props.tags.length > 0 ? (
+            <div className={classes.tags}>
+              {props.tags.map((tag) => (
+                  <Chip key={tag.tagId} label={tag.tagName} className={classes.tag} />
+              ))}
+            </div>
+        ) : (
+            <Typography className={classes.tags}>
+              <Chip className={classes.noTag} label="No tag" />
+            </Typography>
+        )}
         <Typography className={classes.price}>${props.price}</Typography>
         {/*<div className={classes.reviews}>*/}
         {/*  <Rating value={props.rating} readOnly />*/}

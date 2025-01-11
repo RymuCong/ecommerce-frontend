@@ -12,6 +12,8 @@ export const USER_LOGIN = "/auth/login";
 export const IS_USER_LOGIN = "/user/is-login";
 export const UPDATE_USER = "/user";
 export const GET_USER = "/user";
+export const EXPORT_USER = "/admin/users/exportExcelData";
+export const IMPORT_USER = "/admin/users/importExcelData";
 
 // Product routes
 export const CREATE_PRODUCT = "/admin/product/add";

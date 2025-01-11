@@ -20,11 +20,12 @@ import {
 import { Add } from "@material-ui/icons";
 import { useStyles } from "./style";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUsers } from "../../../redux/slices/admin";
+import {exportUsersToExcel, fetchUsers, importUsersFromExcel} from "../../../redux/slices/admin";
 import { Row } from "./Row";
 import { useHistory } from "react-router-dom";
 import { withAdminAuth } from "../../../hoc/withAdminAuth";
 import { Loader } from "../../../components/Loader/";
+import * as XLSX from "xlsx";
 
 export const Users = withAdminAuth(true)((props) => {
   const { push } = useHistory();
@@ -60,6 +61,18 @@ export const Users = withAdminAuth(true)((props) => {
     setSortDir(event.target.value);
   };
 
+  const exportToExcel = () => {
+    dispatch(exportUsersToExcel());
+  };
+
+  const importFromExcel = (event) => {
+    const fileInput = event.target;
+    const file = fileInput.files[0];
+    dispatch(importUsersFromExcel(file)).then(() => {
+      fileInput.value = ""; // Clear the file input
+    });
+  };
+
   return (
       <Container maxWidth="lg">
         {loading ? (
@@ -69,16 +82,42 @@ export const Users = withAdminAuth(true)((props) => {
               <Typography variant="h3" className={classes.heading}>
                 Users
               </Typography>
-              <Button
-                  variant="outlined"
-                  color="primary"
-                  style={{ marginLeft: "auto", display: "flex" }}
-                  size="large"
-                  startIcon={<Add />}
-                  onClick={() => push("/admin/create-user")}
-              >
-                Create
-              </Button>
+              <Box display="flex" justifyContent="space-between" marginBottom={2}>
+                <Button
+                    variant="outlined"
+                    color="primary"
+                    size="large"
+                    startIcon={<Add />}
+                    onClick={() => push("/admin/create-user")}
+                >
+                  Create
+                </Button>
+                <Button
+                    variant="outlined"
+                    color="secondary"
+                    size="large"
+                    onClick={exportToExcel}
+                >
+                  Export to Excel
+                </Button>
+                <input
+                    accept=".xlsx, .xls"
+                    style={{ display: "none" }}
+                    id="import-excel"
+                    type="file"
+                    onChange={importFromExcel}
+                />
+                <label htmlFor="import-excel">
+                  <Button
+                      variant="outlined"
+                      color="primary"
+                      size="large"
+                      component="span"
+                  >
+                    Import from Excel
+                  </Button>
+                </label>
+              </Box>
 
               <Box marginBottom={5} className={classes.filterRow}>
                 <Box marginTop={5} className={classes.sortControls}>

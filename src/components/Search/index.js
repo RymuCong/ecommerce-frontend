@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { TextField, InputAdornment, IconButton } from "@material-ui/core";
 import { SearchTwoTone } from "@material-ui/icons";
+import { useHistory } from "react-router-dom";
 
-export const Search = ({ className, onSearchSubmit }) => {
+export const Search = ({ className }) => {
     const [searchText, setSearchText] = useState("");
+    const history = useHistory();
 
     const searchProductsHandler = (e) => {
         e.preventDefault();
         if (!searchText.trim().length) return;
-        onSearchSubmit(searchText);
+        history.push(`/search?search=${searchText}`);
     };
 
     return (

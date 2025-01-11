@@ -42,13 +42,10 @@ const fetchLatestProducts = createAsyncThunk("products/fetchLatestProducts", asy
     return res.data.products;
 });
 
-export const fetchSearchProducts = createAsyncThunk("products/fetchSearchProducts", async ({ searchTerm, pageNumber, pageSize, sortBy, sortDir, field }) => {
+export const fetchSearchProducts = createAsyncThunk("products/fetchSearchProducts", async ({ searchTerm, pageNumber, pageSize, sortBy, sortDir}) => {
     if (sortBy === "productName")
         sortBy = "name";
-    if (field !== null)
-        field = field+",name,description";
-    else
-        field = "name,description";
+    const field = "name,description,category,tags";
     const res = await Axios.get(Api.SEARCH_PRODUCTS, {
         params: { searchTerm, pageNumber, pageSize, sortBy, sortDir, fields: field },
     });

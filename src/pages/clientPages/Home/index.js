@@ -13,15 +13,10 @@ export const Home = () => {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
   const loading = useSelector((state) => state.products.loading);
-  const searchQuery = useSelector((state) => state.products.searchQuery);
 
     useEffect(() => {
-        if (searchQuery) {
-            dispatch(fetchSearchProducts({ searchTerm: searchQuery, pageNumber: 0, pageSize: 12}));
-        } else {
             dispatch(fetchLatestProducts());
-        }
-    }, [searchQuery]);
+    }, []);
 
     const handleSearchSubmit = (searchText) => {
         dispatch(setSearchQuery(searchText));

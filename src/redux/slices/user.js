@@ -15,8 +15,6 @@ const signup = createAsyncThunk("users/signup", async (userData, { dispatch }) =
     try {
         dispatch(setAuthLoading(true));
         const response = await Axios.post(Api.USER_SIGNUP, userData);
-        // dispatch(setUser(response.data.user));
-        // dispatch(setAuthLoading(false));
         console.log(response.data);
         return response.data;
     } catch (error) {
@@ -62,7 +60,6 @@ const editUser = createAsyncThunk(
           firstName, lastName, email, password, mobileNumber, addresses
       });
       history.push("/profile");
-      console.log(res.data);
       return res.data;
     } catch (error) {
       throw error?.response?.data || error.message;
@@ -172,7 +169,6 @@ const usersSlice = createSlice({
       })
       .addCase(signup.fulfilled, (state, action) => {
         state.user = action.payload.user;
-        state.profile = action.payload.user;
         console.log(action.payload);
         localStorage.setItem("userToken", `Bearer ${action.payload.token}`);
         state.authLoading = false;
@@ -186,8 +182,7 @@ const usersSlice = createSlice({
         state.authLoading = true;
       })
       .addCase(login.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.profile = action.payload;
+        state.user = action.payload.user;
         localStorage.setItem("userToken", `Bearer ${action.payload.token}`);
         state.authLoading = false;
         NotificationManager.success("Logged in!");
@@ -201,21 +196,18 @@ const usersSlice = createSlice({
       })
       .addCase(isLogin.fulfilled, (state, action) => {
         state.user = action.payload;
-        state.profile = action.payload;
         state.loading = false;
       })
       .addCase(isLogin.rejected, (state, action) => {
         state.loading = false;
         localStorage.removeItem("userToken");
         state.user = null;
-        state.profile = null;
       })
       .addCase(editUser.pending, (state, action) => {
         state.authLoading = true;
       })
       .addCase(editUser.fulfilled, (state, action) => {
         state.user = action.payload;
-        state.profile = action.payload;
         state.authLoading = false;
         NotificationManager.success("Profile updated!");
       })

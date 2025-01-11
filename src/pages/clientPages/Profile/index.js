@@ -19,9 +19,7 @@ import { withUserAuth } from "../../../hoc/withUserAuth";
 export const Profile = withUserAuth(true)((props) => {
   const classes = useStyles();
   const { push } = useHistory();
-  const profile = useSelector((state) => state.users.profile);
-
-  console.log(profile);
+  const profile = useSelector((state) => state.users.user);
 
   return (
     <Container maxWidth="lg">

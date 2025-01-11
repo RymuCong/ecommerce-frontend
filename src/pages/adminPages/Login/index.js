@@ -33,7 +33,7 @@ export const Login = withAdminAuth(false)((props) => {
   return (
     <Container maxWidth="lg" className={classes.root}>
       <Typography variant="h3" className={classes.heading}>
-        Login
+        Admin Login
       </Typography>
 
       <Box

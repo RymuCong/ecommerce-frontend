@@ -168,16 +168,22 @@ const deleteCategory = createAsyncThunk("admin/deleteCategory", async (id) => {
 });
 
 const fetchAdminOrders = createAsyncThunk(
-  "admin/fetchAdminOrders",
-  async () => {
-    const res = await AdminAxios.get(Api.ADMIN_ORDERS, {
-        headers: {
-            "Authorization": localStorage.getItem("adminToken"),
-        },
-    });
-    console.log(res.data);
-    return res.data.content;
-  }
+    "admin/fetchAdminOrders",
+    async ({ pageNumber, pageSize, sortBy, sortDir }) => {
+        const res = await AdminAxios.get(Api.ADMIN_ORDERS, {
+            headers: {
+                "Authorization": localStorage.getItem("adminToken"),
+            },
+            params: {
+                pageNumber,
+                pageSize,
+                sortBy,
+                sortDir,
+            },
+        });
+        console.log(res.data);
+        return { orders: res.data.content, total: res.data.totalElements };
+    }
 );
 
 const fetchAdminOrder = createAsyncThunk(
@@ -302,6 +308,46 @@ const createUser = createAsyncThunk("admin/createUser", async ({ firstName, last
     });
     history.push("/admin/users");
     return res.data;
+});
+
+const exportUsersToExcel = createAsyncThunk("admin/exportUsersToExcel", async () => {
+    try {
+        const res = await AdminAxios.post(Api.EXPORT_USER, null, {
+            headers: {
+                "Authorization": localStorage.getItem("adminToken"),
+            },
+            responseType: "blob",
+        });
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        const now = new Date();
+        const dateTimeString = now.toISOString().replace(/[:.]/g, '-');
+        const fileName = `users_${dateTimeString}.xlsx`;
+        link.setAttribute("download", fileName);
+        document.body.appendChild(link);
+        link.click();
+        return res.data;
+    } catch (error) {
+        throw error?.response?.data || error.message;
+    }
+});
+
+const importUsersFromExcel = createAsyncThunk("admin/importUsersFromExcel", async (file) => {
+    try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await AdminAxios.post(Api.IMPORT_USER, formData, {
+            headers: {
+                "Authorization": localStorage.getItem("adminToken"),
+            },
+        });
+        NotificationManager.success("Users imported successfully!");
+        return { users: res.data.users, total: res.data.totalElements };
+    } catch (error) {
+        throw error?.response?.data || error.message;
+    }
 });
 
 const initialState = {
@@ -448,7 +494,8 @@ const adminSlice = createSlice({
         state.contentLoading = true;
       })
       .addCase(fetchAdminOrders.fulfilled, (state, action) => {
-        state.orders = action.payload;
+        state.orders = action.payload.orders;
+        state.total = action.payload.total;
         state.contentLoading = false;
       })
       .addCase(fetchAdminOrder.pending, (state, action) => {
@@ -548,6 +595,28 @@ const adminSlice = createSlice({
         .addCase(createUser.rejected, (state, action) => {
             state.authLoading = false;
             NotificationManager.error(action.error.message);
+        })
+        .addCase(exportUsersToExcel.pending, (state, action) => {
+            state.authLoading = true;
+        })
+        .addCase(exportUsersToExcel.fulfilled, (state, action) => {
+            state.authLoading = false;
+        })
+        .addCase(exportUsersToExcel.rejected, (state, action) => {
+            state.authLoading = false;
+            NotificationManager.error(action.error.message);
+        })
+        .addCase(importUsersFromExcel.pending, (state, action) => {
+            state.authLoading = true;
+        })
+        .addCase(importUsersFromExcel.fulfilled, (state, action) => {
+            state.users = [...state.users, ...action.payload.users];
+            state.total += action.payload.users.length;
+            state.authLoading = false;
+        })
+        .addCase(importUsersFromExcel.rejected, (state, action) => {
+            state.authLoading = false;
+            NotificationManager.error(action.error.message);
         });
   },
 });
@@ -573,6 +642,8 @@ export {
     fetchUsers,
     deleteUser,
     createUser,
+    exportUsersToExcel,
+    importUsersFromExcel,
 };
 
 export default adminSlice.reducer;

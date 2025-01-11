@@ -9,6 +9,7 @@ const initialState = {
   clientSecret: null,
   contentLoading: false,
   buttonLoading: false,
+  total: 0,
 };
 
 const createPaymentIntent = createAsyncThunk(
@@ -28,8 +29,7 @@ const fetchOrders = createAsyncThunk("orders/fetchOrders", async () => {
   const res = await UserAxios.get(Api.GET_ORDERS, {
     Authorization: localStorage.getItem("token"),
   });
-  console.log(res.data);
-  return res.data;
+  return { order: res.data.content, total: res.data.totalElements };
 });
 
 const fetchOrder = createAsyncThunk("orders/fetchOrder", async (id) => {
@@ -59,7 +59,8 @@ const ordersSlice = createSlice({
         state.contentLoading = true;
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
-        state.orders = action.payload;
+        state.orders = action.payload.order;
+        state.total = action.payload.total;
         state.contentLoading = false;
       })
       .addCase(fetchOrder.pending, (state, action) => {
